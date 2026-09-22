@@ -18,12 +18,12 @@ dependencies = [
 ]
 
 [project.scripts]
-backend = "app.main:main"
+backend = "src.main:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-module-root = "src"
-module-name = "app"
+module-root = ""
+module-name = "src"
