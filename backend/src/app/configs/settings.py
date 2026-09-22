@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     pool_size: int = 20
     max_overflow: int = 10
     pool_recycle: int = 3600
+    
+    hostname: str = "127.0.0.1"
+    port: int = 8000
 
 
 settings = Settings()
