@@ -7,3 +7,18 @@ class Category(BaseModel):
     id: int
     name: str
     slug: str
+
+
+class CategoryCreate(BaseModel):
+    name: str
+    slug: str
+
+
+class CategoryUpdate(BaseModel):
+    name: str
+    slug: str
+
+
+class CategoryList(BaseModel):
+    total: int
+    items: list[Category]
