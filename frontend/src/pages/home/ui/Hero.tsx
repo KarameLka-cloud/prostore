@@ -9,7 +9,7 @@ export default function Hero() {
           {/* Tag */}
           <span className="inline-flex items-center gap-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] backdrop-blur-sm text-[#f0f2f8] text-[13px] font-medium px-4 py-2 rounded-[40px] mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] shadow-[0_0_10px_#4ade80]"></span>
-            Доставка по России за 1 день
+            Какой-то текст
           </span>
 
           {/* Heading */}

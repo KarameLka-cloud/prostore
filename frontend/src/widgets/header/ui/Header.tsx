@@ -24,22 +24,22 @@ export default function Header() {
             Каталог
           </Link>
           <Link
-            href="/new"
+            href="/trade-in"
             className="text-[#8b8fa8] no-underline text-[14px] font-medium transition-colors duration-200 hover:text-[#f0f2f8]"
           >
-            Новинки
+            Trade-in
           </Link>
           <Link
-            href="/brands"
+            href="/instructions"
             className="text-[#8b8fa8] no-underline text-[14px] font-medium transition-colors duration-200 hover:text-[#f0f2f8]"
           >
-            Бренды
+            Инструкции
           </Link>
           <Link
-            href="/support"
+            href="/about"
             className="text-[#8b8fa8] no-underline text-[14px] font-medium transition-colors duration-200 hover:text-[#f0f2f8]"
           >
-            Поддержка
+            О нас
           </Link>
         </nav>
 

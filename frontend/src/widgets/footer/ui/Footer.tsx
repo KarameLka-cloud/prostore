@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 export default function Footer() {
+  // const currentYear = new Date().getFullYear();
+
   return (
     <footer className="border-t border-[rgba(255,255,255,0.08)] mt-12">
       <div className="mx-auto max-w-7xl px-6 py-12">
@@ -102,8 +104,11 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="mt-10 pt-6 border-t border-[rgba(255,255,255,0.08)] flex flex-wrap justify-between gap-3 text-[#8b8fa8] text-[13px]">
-          <span>© 2025 ПроСтор</span>
-          <span>Сделано с вниманием к деталям</span>
+          <span>© 2026 ПроСтор</span>
+          <span>
+            Магазин игровых приставок! PlayStation, Nintendo, Oculus, Steam,
+            Xbox
+          </span>
         </div>
       </div>
     </footer>
