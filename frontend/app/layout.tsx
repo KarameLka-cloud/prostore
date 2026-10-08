@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { Roboto, Roboto_Mono } from "next/font/google";
+import { Roboto, Roboto_Mono, Inter } from "next/font/google";
 import "@/app/styles/globals.css";
 import { Header } from "@/widgets/header";
 import { Footer } from "@/widgets/footer";
+import { cn } from "@/shared/lib/utils";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const robotoSans = Roboto({
   variable: "--font-roboto-sans",
@@ -28,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ru"
-      className={`${robotoSans.variable} ${robotoMono.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", robotoSans.variable, robotoMono.variable, "font-sans", inter.variable)}
     >
       <body className="relative">
         {/* Background blobs */}
