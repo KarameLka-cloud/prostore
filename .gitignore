@@ -59,3 +59,7 @@ __pycache__/
 # typescript
 /frontend/*.tsbuildinfo
 /frontend/next-env.d.ts
+
+
+# Other
+deepseek_html_20261001_7730b8.html
