@@ -1,10 +1,10 @@
 import Link from "next/link";
+import { NAV_LINKS } from "../model/links";
 
 export default function Header() {
   return (
     <header className="sticky top-4 z-50 px-6 mb-2">
       <div className="mx-auto max-w-7xl rounded-full bg-[rgba(20,22,35,0.6)] backdrop-blur-xl border border-[rgba(255,255,255,0.08)] px-7 py-3 flex items-center justify-between h-17 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-        {/* Logo */}
         <Link
           href="/"
           className="font-extrabold text-[15px] md:text-[17px] lg:text-[20px] tracking-tighter text-[#f0f2f8] flex items-center gap-2.5 no-underline"
@@ -15,35 +15,18 @@ export default function Header() {
           <span className="hidden sm:inline">ПроСтор</span>
         </Link>
 
-        {/* Navigation */}
         <nav className="hidden md:flex gap-8">
-          <Link
-            href="/catalog"
-            className="text-[#8b8fa8] no-underline text-[14px] font-medium transition-colors duration-200 hover:text-[#f0f2f8]"
-          >
-            Каталог
-          </Link>
-          <Link
-            href="/trade-in"
-            className="text-[#8b8fa8] no-underline text-[14px] font-medium transition-colors duration-200 hover:text-[#f0f2f8]"
-          >
-            Trade-in
-          </Link>
-          <Link
-            href="/instructions"
-            className="text-[#8b8fa8] no-underline text-[14px] font-medium transition-colors duration-200 hover:text-[#f0f2f8]"
-          >
-            Инструкции
-          </Link>
-          <Link
-            href="/about"
-            className="text-[#8b8fa8] no-underline text-[14px] font-medium transition-colors duration-200 hover:text-[#f0f2f8]"
-          >
-            О нас
-          </Link>
+          {NAV_LINKS.map((item, index) => (
+            <Link
+              href={item.url}
+              className="text-[#8b8fa8] no-underline text-[14px] font-medium transition-colors duration-200 hover:text-[#f0f2f8]"
+              key={index}
+            >
+              {item.name}
+            </Link>
+          ))}
         </nav>
 
-        {/* Actions */}
         <div className="flex gap-2">
           <button className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] w-11 h-11 rounded-full text-[#f0f2f8] cursor-pointer flex items-center justify-center transition-all duration-200 hover:bg-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.18)] hover:scale-105 backdrop-blur-sm relative">
             <i className="fas fa-search text-sm"></i>

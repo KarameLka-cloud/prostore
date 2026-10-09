@@ -7,7 +7,6 @@ export default function Footer() {
     <footer className="border-t border-[rgba(255,255,255,0.08)] mt-12">
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-          {/* Магазин */}
           <div>
             <h5 className="text-[13px] font-bold text-[#f0f2f8] mb-4 uppercase tracking-widest">
               Магазин
@@ -32,7 +31,6 @@ export default function Footer() {
             </Link>
           </div>
 
-          {/* Помощь */}
           <div>
             <h5 className="text-[13px] font-bold text-[#f0f2f8] mb-4 uppercase tracking-widest">
               Помощь
@@ -57,7 +55,6 @@ export default function Footer() {
             </Link>
           </div>
 
-          {/* Контакты */}
           <div>
             <h5 className="text-[13px] font-bold text-[#f0f2f8] mb-4 uppercase tracking-widest">
               Контакты
@@ -76,7 +73,6 @@ export default function Footer() {
             </a>
           </div>
 
-          {/* Соцсети */}
           <div>
             <h5 className="text-[13px] font-bold text-[#f0f2f8] mb-4 uppercase tracking-widest">
               Соцсети
@@ -102,9 +98,8 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom */}
         <div className="mt-10 pt-6 border-t border-[rgba(255,255,255,0.08)] flex flex-wrap justify-between gap-3 text-[#8b8fa8] text-[13px]">
-          <span>© 2026 ПроСтор</span>
+          <span>© 2026 ПроСтор | Powered by KarameLka</span>
           <span>
             Магазин игровых приставок! PlayStation, Nintendo, Oculus, Steam,
             Xbox
