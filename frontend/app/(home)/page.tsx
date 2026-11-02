@@ -1,6 +1,9 @@
-// import Image from "next/image";
-// import { Avatar } from "@/shared/ui/shadcn/avatar";
+import { HomePage } from "@/pages/home";
 
 export default function Home() {
-  return <div>Home page</div>;
+  return (
+    <>
+      <HomePage />
+    </>
+  );
 }
