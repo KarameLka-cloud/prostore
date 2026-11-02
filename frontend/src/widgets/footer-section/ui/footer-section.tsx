@@ -2,9 +2,9 @@ import { siteConfig } from "@/app/configs/site";
 
 export default function FooterSection() {
   return (
-    <footer className="mt-12 border-t border-white/10 pb-8 pt-12 max-w-7xl mx-auto">
+    <footer className="mt-12 border-t border-white/10 pb-8 pt-12">
       {/* <Container> */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-10">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-10 text-white">
         {/* {footerColumns.map((column) => (
             <div key={column.title}>
               <h3 className="mb-[18px] text-[13px] font-bold uppercase tracking-[1px]">
@@ -22,11 +22,12 @@ export default function FooterSection() {
               ))}
             </div>
           ))} */}
+        Ссылки
       </div>
 
       <div className="mt-10 flex flex-wrap justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-muted">
-        <span>© 2025 {siteConfig.name} | by KarameLka</span>
-        <span>Сделано с вниманием к деталям</span>
+        <span>© 2025 {siteConfig.name}</span>
+        <span>🍬 by KarameLka 🍬</span>
       </div>
       {/* </Container> */}
     </footer>

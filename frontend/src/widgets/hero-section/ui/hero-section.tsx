@@ -9,7 +9,7 @@ import { siteConfig } from "@/app/configs/site";
 export default function HeroSection() {
   return (
     <section className="pb-16 pt-18">
-      <div className="grid items-center gap-14 lg:grid-cols-2 mx-auto max-w-7xl px-3">
+      <div className="grid items-center gap-14 lg:grid-cols-2">
         <div>
           <h1 className="mb-6 text-[40px] font-extrabold leading-[1.05] tracking-[-1px] sm:text-5xl lg:text-[60px] lg:tracking-[-2px]">
             <em className="bg-linear-to-br from-brand-violet via-brand-blue to-brand-pink bg-clip-text not-italic text-transparent">

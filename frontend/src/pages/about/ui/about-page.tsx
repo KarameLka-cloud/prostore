@@ -1,3 +1,10 @@
+import { AboutHeader, AboutText } from "@/entities/about-section";
+
 export default function AboutPage() {
-  return <>About page</>;
+  return (
+    <>
+      <AboutHeader />
+      <AboutText />
+    </>
+  );
 }

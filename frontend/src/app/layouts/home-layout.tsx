@@ -9,10 +9,12 @@ export default function HomeLayout({
 }) {
   return (
     <div className="bg-black min-h-screen z-0">
-      <BackgroundBlob />
-      <HeaderSection />
-      <main>{children}</main>
-      <FooterSection />
+      <div className="mx-auto max-w-7xl px-3">
+        <BackgroundBlob />
+        <HeaderSection />
+        <main>{children}</main>
+        <FooterSection />
+      </div>
     </div>
   );
 }

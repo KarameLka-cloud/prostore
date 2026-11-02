@@ -9,7 +9,7 @@ export interface NavConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "PROSTORE - магазин цифровой электроники",
+  name: "ПРОСТОР - магазин цифровой электроники",
   description:
     "Премиальная электроника с безупречным сервисом. Только оригинальные устройства и честные цены",
 };
@@ -18,6 +18,7 @@ export const navConfig: NavConfig[] = [
   { label: "Каталог", href: "catalog" },
   { label: "TradeIn", href: "tradein" },
   { label: "Рассрочка", href: "credit" },
+  { label: "Аренда", href: "rental" },
   { label: "О нас", href: "about" },
   { label: "Контакты", href: "contacts" },
 ];
