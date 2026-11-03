@@ -123,7 +123,7 @@ export default function LoginPage() {
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Нет аккаунта?{" "}
           <Link
-            href="/register"
+            href="/registration"
             className="font-medium text-white underline-offset-4 hover:underline"
           >
             Зарегистрироваться
