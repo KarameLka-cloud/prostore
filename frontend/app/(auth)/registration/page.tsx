@@ -118,7 +118,7 @@ export default function RegistrationPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="relative flex h-10 w-full items-center justify-center overflow-hidden rounded-lg bg-gradient-to-r from-brand-violet to-brand-pink text-sm font-semibold text-white shadow-[0_4px_16px_rgba(139,92,246,0.35)] transition-all hover:shadow-[0_6px_24px_rgba(139,92,246,0.5)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="relative flex h-10 w-full items-center justify-center overflow-hidden rounded-lg bg-linear-to-r from-brand-violet to-brand-pink text-sm font-semibold text-white shadow-[0_4px_16px_rgba(139,92,246,0.35)] transition-all hover:shadow-[0_6px_24px_rgba(139,92,246,0.5)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
