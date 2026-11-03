@@ -1,6 +1,9 @@
 import { siteConfig } from "@/app/configs/site";
+import { getCurrentYear } from "@/shared/lib";
 
 export default function FooterSection() {
+  const currentYear = getCurrentYear();
+
   return (
     <footer className="mt-12 border-t border-white/10 pb-8 pt-12">
       {/* <Container> */}
@@ -26,7 +29,9 @@ export default function FooterSection() {
       </div>
 
       <div className="mt-10 flex flex-wrap justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-muted">
-        <span>© 2025 {siteConfig.name}</span>
+        <span>
+          © {currentYear} {siteConfig.name}
+        </span>
         <span>🍬 by KarameLka 🍬</span>
       </div>
       {/* </Container> */}
