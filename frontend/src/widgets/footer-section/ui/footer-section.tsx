@@ -1,8 +1,8 @@
 import { siteConfig } from "@/app/configs/site";
 import { getCurrentYear } from "@/shared/lib";
 
-export default function FooterSection() {
-  const currentYear = getCurrentYear();
+export default async function FooterSection() {
+  const currentYear = await getCurrentYear();
 
   return (
     <footer className="mt-12 border-t border-white/10 pb-8 pt-12">
