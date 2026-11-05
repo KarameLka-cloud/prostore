@@ -35,10 +35,6 @@ const REASONS = [
     icon: Wrench,
     title: "Настройка техники и помощь после покупки",
   },
-  {
-    icon: MessageCircle,
-    title: "Нормальное человеческое отношение",
-  },
 ];
 
 export default function AboutPage() {

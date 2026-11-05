@@ -35,10 +35,6 @@ export default function HomePage() {
       icon: Wrench,
       title: "Настройка техники и помощь после покупки",
     },
-    {
-      icon: MessageCircle,
-      title: "Нормальное человеческое отношение",
-    },
   ];
 
   return (
