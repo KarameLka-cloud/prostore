@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import NavLink from "next/link";
 import { navConfig } from "@/app/configs/site";
-import { Menu, X } from "lucide-react";
+import { Menu, User, X } from "lucide-react";
 
 export default function HeaderSection() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -33,12 +34,12 @@ export default function HeaderSection() {
           </nav>
 
           <div className="flex gap-2">
-            <span className="h-10 w-10 bg-white rounded-full"></span>
-            <span className="h-10 w-10 bg-white rounded-full"></span>
-            {/* <IconButton label="Поиск">
-              <Search className="size-4.5" />
-            </IconButton>
-            <CartButton /> */}
+            <Link
+              href="/login"
+              className="flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            >
+              <User className="size-5" />
+            </Link>
           </div>
 
           {/* Burger button */}
@@ -56,7 +57,9 @@ export default function HeaderSection() {
       {/* Mobile full-screen overlay */}
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-300 md:hidden ${
-          mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          mobileMenuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setMobileMenuOpen(false)}
       >
