@@ -33,14 +33,12 @@ export default function HeaderSection() {
             ))}
           </nav>
 
-          <div className="flex gap-2">
-            <Link
-              href="/login"
-              className="flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
-            >
-              <User className="size-5" />
-            </Link>
-          </div>
+          <Link
+            href="/login"
+            className="flex size-10 ml-auto mr-6 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+          >
+            <User className="size-5" />
+          </Link>
 
           {/* Burger button */}
           <button
