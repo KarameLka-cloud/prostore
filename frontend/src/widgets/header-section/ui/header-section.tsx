@@ -35,7 +35,7 @@ export default function HeaderSection() {
 
           <Link
             href="/login"
-            className="flex size-10 ml-auto mr-6 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            className="flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 ml-auto mr-6 md:ml-0"
           >
             <User className="size-5" />
           </Link>
