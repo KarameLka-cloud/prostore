@@ -1,7 +1,6 @@
 import PageHeader from "@/shared/ui/custom/page-header";
 import {
   Banknote,
-  Calendar,
   UserCheck,
   Smartphone,
   MapPin,
@@ -56,10 +55,10 @@ export default function CreditPage() {
       {/* Intro */}
       <div className="mx-auto mb-16 max-w-3xl">
         <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-glass p-8 backdrop-blur-xl lg:p-10">
-          <div className="absolute -inset-px rounded-[24px] bg-gradient-to-br from-brand-violet/10 via-brand-blue/5 to-brand-pink/10" />
+          <div className="absolute -inset-px rounded-[24px] bg-linear-to-br from-brand-violet/10 via-brand-blue/5 to-brand-pink/10" />
           <div className="relative space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-violet via-brand-blue to-brand-pink">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-brand-violet via-brand-blue to-brand-pink">
                 <Banknote className="size-5 text-white" />
               </div>
               <h3 className="text-xl font-bold text-white">
@@ -86,7 +85,7 @@ export default function CreditPage() {
                 key={index}
                 className="group relative overflow-hidden rounded-[20px] border border-white/10 bg-glass p-6 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_30px_rgba(139,92,246,0.12)]"
               >
-                <div className="pointer-events-none absolute -inset-px rounded-[20px] bg-gradient-to-br from-brand-violet/5 via-brand-blue/5 to-brand-pink/5 opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="pointer-events-none absolute -inset-px rounded-[20px] bg-linear-to-br from-brand-violet/5 via-brand-blue/5 to-brand-pink/5 opacity-0 transition-opacity group-hover:opacity-100" />
                 <div className="relative">
                   <div className="mb-3 inline-flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/5">
                     <Icon className="size-4 text-white" />
@@ -104,7 +103,7 @@ export default function CreditPage() {
       {/* Rates */}
       <div className="mb-16">
         <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-glass p-8 backdrop-blur-xl lg:p-10">
-          <div className="absolute -inset-px rounded-[24px] bg-gradient-to-br from-brand-violet/10 via-brand-blue/5 to-brand-pink/10" />
+          <div className="absolute -inset-px rounded-[24px] bg-linear-to-br from-brand-violet/10 via-brand-blue/5 to-brand-pink/10" />
           <div className="relative space-y-6">
             <div className="flex items-center gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5">
@@ -142,7 +141,7 @@ export default function CreditPage() {
       {/* Note */}
       <div className="mx-auto max-w-3xl">
         <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-glass p-6 backdrop-blur-xl lg:p-8">
-          <div className="absolute -inset-px rounded-[24px] bg-gradient-to-br from-brand-violet/10 via-brand-blue/5 to-brand-pink/10" />
+          <div className="absolute -inset-px rounded-[24px] bg-linear-to-br from-brand-violet/10 via-brand-blue/5 to-brand-pink/10" />
           <div className="relative flex items-start gap-3">
             <Info className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
             <p className="text-[15px] leading-relaxed text-muted-foreground">

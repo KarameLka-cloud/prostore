@@ -5,7 +5,7 @@ export default async function FooterSection() {
   const currentYear = await getCurrentYear();
 
   return (
-    <footer className="mt-12 border-t border-white/10 pb-8 pt-12">
+    <footer className="border-t border-white/10 pb-8 pt-12 mx-4">
       {/* <Container> */}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-10 text-white">
         {/* {footerColumns.map((column) => (

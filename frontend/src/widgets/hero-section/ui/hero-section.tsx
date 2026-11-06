@@ -1,15 +1,11 @@
 import { ArrowRight } from "lucide-react";
-// import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "@/app/configs/site";
 
-// const HERO_IMAGE =
-//   "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=900&auto=format&fit=crop&q=80";
-
 export default function HeroSection() {
   return (
-    <section className="pb-16 pt-18">
-      <div className="grid items-center gap-14 lg:grid-cols-2">
+    <section className="my-18">
+      <div className="grid items-center gap-14 md:grid-cols-2">
         <div>
           <h1 className="mb-6 text-[40px] font-extrabold leading-[1.05] tracking-[-1px] sm:text-5xl lg:text-[60px] lg:tracking-[-2px]">
             <em className="bg-linear-to-br from-brand-violet via-brand-blue to-brand-pink bg-clip-text not-italic text-transparent">
@@ -30,7 +26,7 @@ export default function HeroSection() {
           </Link>
         </div>
 
-        <div className="relative flex aspect-square items-center justify-center">
+        <div className="relative aspect-square items-center justify-center hidden md:block">
           <div
             aria-hidden="true"
             className="absolute inset-0 rounded-[32px] bg-linear-to-br from-brand-violet/30 to-brand-pink/30 blur-2xl"

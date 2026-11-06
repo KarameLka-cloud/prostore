@@ -36,12 +36,10 @@ const STEPS = [
 
 export default function TradeInPage() {
   return (
-    <section className="px-7 pb-20">
+    <section className="pb-20">
       <PageHeader>Как работает TradeIn — в 3 шага</PageHeader>
 
-      {/* Two-column layout: steps left, image right */}
       <div className="grid items-start gap-10 md:grid-cols-2">
-        {/* Steps — vertical list */}
         <div className="flex flex-col gap-6">
           {STEPS.map((step, index) => {
             const Icon = step.icon;
@@ -50,22 +48,17 @@ export default function TradeInPage() {
                 key={index}
                 className="group relative overflow-hidden rounded-[24px] border border-white/10 bg-glass p-8 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_40px_rgba(139,92,246,0.15)]"
               >
-                {/* Glow on hover */}
-                <div className="pointer-events-none absolute -inset-px rounded-[24px] bg-gradient-to-br from-brand-violet/5 via-brand-blue/5 to-brand-pink/5 opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="pointer-events-none absolute -inset-px rounded-[24px] bg-linear-to-br from-brand-violet/5 via-brand-blue/5 to-brand-pink/5 opacity-0 transition-opacity group-hover:opacity-100" />
 
-                {/* Header: number + icon + title on one line */}
                 <div className="mb-4 flex items-center gap-4">
-                  {/* Step number */}
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-violet via-brand-blue to-brand-pink text-sm font-bold text-white shadow-lg">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-brand-violet via-brand-blue to-brand-pink text-sm font-bold text-white shadow-lg">
                     {index + 1}
                   </div>
 
-                  {/* Icon */}
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white">
                     <Icon className="size-5" />
                   </div>
 
-                  {/* Title */}
                   <h4 className="text-lg font-semibold text-white">
                     {step.title}
                   </h4>
@@ -82,7 +75,7 @@ export default function TradeInPage() {
                         key={i}
                         className="flex items-start gap-2 text-sm text-muted-foreground"
                       >
-                        <span className="mt-1 size-1.5 shrink-0 rounded-full bg-gradient-to-r from-brand-violet to-brand-pink" />
+                        <span className="mt-1 size-1.5 shrink-0 rounded-full bg-linear-to-r from-brand-violet to-brand-pink" />
                         {detail}
                       </li>
                     ))}
@@ -93,10 +86,9 @@ export default function TradeInPage() {
           })}
         </div>
 
-        {/* Image — sticky on the right */}
         <div className="flex items-start justify-center">
           <Image
-            src="/pages/tradein.png"
+            src="/images/pages/tradein.png"
             alt="TradeIn"
             width={600}
             height={500}
