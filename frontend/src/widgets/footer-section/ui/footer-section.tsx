@@ -28,13 +28,13 @@ export default async function FooterSection() {
             </div>
             <div className="flex items-center gap-3">
               <Clock className="size-4 shrink-0 text-brand-violet" />
-              <span className="text-[15px]">Пн–Вс: 10:00–21:00</span>
+              <span className="text-[15px]">Пн–Вс: 10:00–20:00</span>
             </div>
           </div>
         </div>
 
-        <div className="text-white">
-          <nav className="flex flex-wrap gap-x-6 gap-y-3">
+        <div className="text-white flex items-center">
+          <nav className="flex flex-wrap justify-center sm:justify-end gap-x-6 gap-y-3 w-full">
             {navConfig.map((item) => (
               <Link
                 key={item.href}
