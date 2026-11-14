@@ -1,18 +1,9 @@
-import { Avatar } from "@/shared/ui/shadcn/avatar";
+import { logoutAction } from "@/features/auth";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/shared/ui/shadcn/collapsible";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/shared/ui/shadcn/dropdown-menu";
 import { Separator } from "@/shared/ui/shadcn/separator";
 import {
   Sidebar,
@@ -43,22 +34,22 @@ import {
 
 const items = [
   {
-    title: "Playground",
+    title: "Каталог",
     url: "#",
     icon: SquareTerminal,
     isActive: true,
     items: [
       {
-        title: "History",
-        url: "#",
+        title: "Товары",
+        url: "/admin/catalog",
       },
       {
-        title: "Starred",
-        url: "#",
+        title: "Категории",
+        url: "/admin/catalog/categories",
       },
       {
-        title: "Settings",
-        url: "#",
+        title: "Бренды",
+        url: "/admin/catalog/brands",
       },
     ],
   },
@@ -136,7 +127,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SidebarHeader>ПРОСТОР</SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>Управление</SidebarGroupLabel>
             <SidebarMenu>
               {items.map((item) => (
                 <Collapsible
@@ -145,21 +136,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   className="group/collapsible"
                 >
                   <SidebarMenuItem>
-                    <CollapsibleTrigger>
-                      <SidebarMenuButton tooltip={item.title}>
-                        {item.icon && <item.icon />}
-                        <span>{item.title}</span>
-                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                      </SidebarMenuButton>
+                    <CollapsibleTrigger
+                      render={<SidebarMenuButton tooltip={item.title} />}
+                    >
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
                         {item.items?.map((subItem) => (
                           <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton>
-                              <a href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </a>
+                            <SidebarMenuSubButton render={<a href={subItem.url} />}>
+                              <span>{subItem.title}</span>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))}
@@ -171,7 +160,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter></SidebarFooter>
+        <SidebarFooter>
+          <form action={logoutAction}>
+            <button
+              type="submit"
+              className="flex w-full items-center justify-center rounded-md border border-white/10 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/10 hover:text-white"
+            >
+              Выйти
+            </button>
+          </form>
+        </SidebarFooter>
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
@@ -179,14 +177,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2" />
-            <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-              <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div className="aspect-video rounded-xl bg-muted/50" />
-                <div className="aspect-video rounded-xl bg-muted/50" />
-                <div className="aspect-video rounded-xl bg-muted/50" />
-              </div>
-              <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-            </div>
           </div>
         </header>
         <div className="p-4">{children}</div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { MapPin, Phone, Clock } from "lucide-react";
-import { siteConfig, navConfig } from "@/app/configs/site";
+import { siteConfig, navConfig } from "@/shared/config/site";
 import { getCurrentYear } from "@/shared/lib";
 
 export default async function FooterSection() {

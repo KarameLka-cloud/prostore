@@ -10,6 +10,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), unique=True)
     email: Mapped[str] = mapped_column(String(255), unique=True)
+    password_hash: Mapped[str] = mapped_column(String(255))
 
     def __repr__(self) -> str:
-        return f"<Category id={self.id} name={self.name} prefix={self.email}>"
+        return f"<User id={self.id} name={self.name} email={self.email}>"

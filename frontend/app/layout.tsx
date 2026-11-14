@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import { cn } from "@/shared/lib/shadcn/utils";
 import "@/app/styles/globals.css";
-import { siteConfig } from "@/app/configs/site";
+import { siteConfig } from "@/shared/config/site";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],

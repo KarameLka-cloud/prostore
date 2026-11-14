@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import NavLink from "next/link";
-import { navConfig } from "@/app/configs/site";
+import { navConfig } from "@/shared/config/site";
 import { Menu, User, X } from "lucide-react";
 
-export default function HeaderSection() {
+export default function HeaderSection({ userName }: { userName?: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const userInitial = userName?.trim().charAt(0).toLocaleUpperCase("ru-RU");
 
   return (
     <>
@@ -37,7 +38,13 @@ export default function HeaderSection() {
             href="/login"
             className="flex size-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 ml-auto mr-6 md:ml-0"
           >
-            <User className="size-5" />
+            {userInitial ? (
+              <span className="text-sm font-bold" aria-label={`Пользователь: ${userName}`}>
+                {userInitial}
+              </span>
+            ) : (
+              <User className="size-5" />
+            )}
           </Link>
 
           {/* Burger button */}

@@ -1,22 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useActionState } from "react";
 import Link from "next/link";
 
+import { loginAction } from "@/features/auth";
+
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // TODO: implement login logic
-    console.log({ email, password });
-
-    setIsLoading(false);
-  };
+  const [state, formAction, isPending] = useActionState(loginAction, {});
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
@@ -33,24 +23,24 @@ export default function LoginPage() {
 
         {/* Form */}
         <form
-          onSubmit={handleSubmit}
+          action={formAction}
           className="rounded-2xl border border-white/10 bg-black/40 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl"
         >
           <div className="mb-6 space-y-5">
-            {/* Email */}
+            {/* Login */}
             <div className="space-y-2">
               <label
-                htmlFor="email"
+                htmlFor="login"
                 className="text-xs font-medium text-muted-foreground"
               >
-                Email
+                Логин
               </label>
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@mail.com"
+                id="login"
+                name="login"
+                type="text"
+                autoComplete="username"
+                placeholder="admin"
                 required
                 className="flex h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-muted-foreground/60 outline-none transition-all focus:border-brand-violet/50 focus:ring-1 focus:ring-brand-violet/30 disabled:cursor-not-allowed disabled:opacity-50"
               />
@@ -74,23 +64,29 @@ export default function LoginPage() {
               </div>
               <input
                 id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 placeholder="••••••••"
                 required
                 className="flex h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-muted-foreground/60 outline-none transition-all focus:border-brand-violet/50 focus:ring-1 focus:ring-brand-violet/30 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
+
+            {state.error && (
+              <p className="text-xs text-red-400" role="alert">
+                {state.error}
+              </p>
+            )}
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isPending}
             className="relative flex h-10 w-full items-center justify-center overflow-hidden rounded-lg bg-linear-to-r from-brand-violet to-brand-pink text-sm font-semibold text-white shadow-[0_4px_16px_rgba(139,92,246,0.35)] transition-all hover:shadow-[0_6px_24px_rgba(139,92,246,0.5)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? (
+            {isPending ? (
               <span className="flex items-center gap-2">
                 <svg
                   className="size-4 animate-spin"

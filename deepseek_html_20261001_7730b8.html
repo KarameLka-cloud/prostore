@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flux — тёмный глассморфизм</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #06070d;
+      --glass: rgba(255, 255, 255, 0.04);
+      --glass-strong: rgba(255, 255, 255, 0.07);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-hover: rgba(255, 255, 255, 0.18);
+      --text: #f0f2f8;
+      --muted: #8b8fa8;
+      --violet: #8b5cf6;
+      --blue: #3b82f6;
+      --pink: #ec4899;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Красочные размытые пятна на фоне */
+    .bg-blobs {
+      position: fixed; inset: 0; z-index: 0;
+      overflow: hidden; pointer-events: none;
+    }
+    .blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(120px); opacity: 0.5;
+    }
+    .blob-1 {
+      width: 500px; height: 500px;
+      background: var(--violet);
+      top: -150px; left: -100px;
+    }
+    .blob-2 {
+      width: 400px; height: 400px;
+      background: var(--blue);
+      top: 40%; right: -100px;
+    }
+    .blob-3 {
+      width: 450px; height: 450px;
+      background: var(--pink);
+      bottom: -150px; left: 30%;
+      opacity: 0.3;
+    }
+
+    .container {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 24px; position: relative; z-index: 1;
+    }
+
+    /* Header */
+    header {
+      position: sticky; top: 16px; z-index: 50;
+      padding: 0 24px;
+      margin-bottom: 8px;
+    }
+    .header-inner {
+      max-width: 1280px; margin: 0 auto;
+      background: rgba(20, 22, 35, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      padding: 12px 12px 12px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    .logo {
+      font-weight: 800; font-size: 20px;
+      letter-spacing: -0.5px;
+      color: var(--text); text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--violet), var(--pink));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: white;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+    nav { display: flex; gap: 32px; }
+    nav a {
+      color: var(--muted); text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--text); }
+    .header-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      width: 44px; height: 44px; border-radius: 50%;
+      color: var(--text); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s; position: relative;
+      backdrop-filter: blur(10px);
+    }
+    .icon-btn:hover {
+      background: var(--glass-strong);
+      border-color: var(--glass-border-hover);
+      transform: scale(1.05);
+    }
+    .cart-count {
+      position: absolute; top: -4px; right: -4px;
+      background: linear-gradient(135deg, var(--violet), var(--pink));
+      color: white; font-size: 10px; font-weight: 700;
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--bg);
+    }
+
+    /* Hero */
+    .hero { padding: 72px 0 64px; }
+    .hero-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 56px; align-items: center;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+      color: var(--text); font-size: 13px; font-weight: 500;
+      padding: 8px 16px; border-radius: 40px;
+      margin-bottom: 24px;
+    }
+    .hero-tag .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 10px #4ade80;
+    }
+    .hero h1 {
+      font-size: 60px; font-weight: 800;
+      line-height: 1.05; letter-spacing: -2px;
+      margin-bottom: 24px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--violet), var(--blue), var(--pink));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 17px; color: var(--muted);
+      margin-bottom: 36px; max-width: 460px;
+    }
+    .btn-glass {
+      background: var(--glass-strong);
+      border: 1px solid var(--glass-border-hover);
+      backdrop-filter: blur(10px);
+      color: var(--text); font-family: inherit;
+      font-weight: 600; font-size: 15px;
+      padding: 16px 30px; border-radius: 100px;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+      transition: all .25s;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(139, 92, 246, 0.3);
+    }
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--violet), var(--pink));
+      border: none; color: white;
+      font-family: inherit; font-weight: 600; font-size: 15px;
+      padding: 17px 32px; border-radius: 100px;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+      transition: all .25s;
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    }
+    .btn-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(139, 92, 246, 0.6);
+    }
+
+    .hero-visual {
+      position: relative;
+      aspect-ratio: 1/1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-visual::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(236,72,153,0.3));
+      border-radius: 32px;
+      filter: blur(40px);
+      z-index: -1;
+    }
+    .hero-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 32px;
+      padding: 32px;
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-card img {
+      width: 85%; height: auto; object-fit: contain;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+    }
+
+    /* Section */
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 64px 0 24px;
+    }
+    .section-head h2 {
+      font-size: 28px; font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .section-head a {
+      color: var(--muted); text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      display: flex; align-items: center; gap: 8px;
+      transition: color .2s;
+    }
+    .section-head a:hover { color: var(--text); }
+
+    /* Products */
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .product {
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 20px;
+      transition: all .3s;
+      display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+    .product:hover {
+      background: var(--glass-strong);
+      border-color: var(--glass-border-hover);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    .product-img-wrap {
+      aspect-ratio: 1/1;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; position: relative; overflow: hidden;
+    }
+    .product-img-wrap img {
+      width: 100%; height: 100%; object-fit: contain;
+      transition: transform .4s;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+    }
+    .product:hover .product-img-wrap img {
+      transform: scale(1.08) rotate(-2deg);
+    }
+    .product-tag {
+      position: absolute; top: 14px; left: 14px;
+      background: linear-gradient(135deg, var(--violet), var(--pink));
+      color: white; font-size: 10px; font-weight: 700;
+      padding: 5px 12px; border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+    .product-name {
+      font-weight: 600; font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .product-desc {
+      font-size: 13px; color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .product-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: auto;
+    }
+    .product-price {
+      font-size: 20px; font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .product-price small {
+      display: block; font-size: 12px;
+      color: var(--muted); font-weight: 400;
+      text-decoration: line-through;
+    }
+    .add-btn {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      width: 44px; height: 44px; border-radius: 50%;
+      color: var(--text); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s; font-size: 15px;
+      backdrop-filter: blur(10px);
+    }
+    .add-btn:hover {
+      background: linear-gradient(135deg, var(--violet), var(--pink));
+      border-color: transparent;
+      transform: scale(1.1) rotate(90deg);
+    }
+
+    /* CTA */
+    .cta {
+      margin: 80px 0;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 32px;
+      padding: 56px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta::before {
+      content: '';
+      position: absolute; top: -50%; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(139,92,246,0.3), transparent 70%);
+      pointer-events: none;
+    }
+    .cta h3 {
+      font-size: 36px; font-weight: 800;
+      letter-spacing: -1px; margin-bottom: 12px;
+      position: relative;
+    }
+    .cta p {
+      color: var(--muted); font-size: 16px;
+      margin-bottom: 32px; position: relative;
+    }
+
+    /* Footer */
+    footer {
+      padding: 48px 0 32px;
+      border-top: 1px solid var(--glass-border);
+      margin-top: 48px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 40px;
+    }
+    .footer-col h5 {
+      font-size: 13px; font-weight: 700;
+      color: var(--text); margin-bottom: 18px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .footer-col a {
+      display: block; color: var(--muted); text-decoration: none;
+      font-size: 14px; margin-bottom: 12px;
+      transition: color .2s;
+    }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom {
+      margin-top: 40px; padding-top: 24px;
+      border-top: 1px solid var(--glass-border);
+      display: flex; justify-content: space-between;
+      color: var(--muted); font-size: 13px;
+      flex-wrap: wrap; gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .header-inner { padding: 8px 8px 8px 20px; }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 40px; letter-spacing: -1px; }
+      .cta { padding: 32px 24px; }
+      .cta h3 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <header>
+    <div class="header-inner">
+      <a href="#" class="logo">
+        <span class="logo-icon"><i class="fas fa-wave-square"></i></span>
+        Flux
+      </a>
+      <nav>
+        <a href="#">Каталог</a>
+        <a href="#">Новинки</a>
+        <a href="#">Бренды</a>
+        <a href="#">Поддержка</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn"><i class="fas fa-search"></i></button>
+        <button class="icon-btn">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count">3</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <span class="hero-tag"><span class="dot"></span> Доставка по России за 1 день</span>
+          <h1>Технологии в <em>новом свете</em></h1>
+          <p>Премиальная электроника с безупречным сервисом. Только оригинальные устройства и честные цены.</p>
+          <a href="#" class="btn-gradient">Смотреть каталог <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card">
+            <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600&auto=format&fit=crop&q=80" alt="Наушники">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <h2>Популярное</h2>
+      <a href="#">Все товары <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    <div class="products">
+      <div class="product">
+        <div class="product-img-wrap">
+          <span class="product-tag">NEW</span>
+          <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&auto=format&fit=crop&q=80" alt="Смартфон">
+        </div>
+        <div class="product-name">iPhone 15 Pro Max</div>
+        <div class="product-desc">Titanium · 256 ГБ</div>
+        <div class="product-bottom">
+          <div class="product-price">139 990 ₽</div>
+          <button class="add-btn"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+
+      <div class="product">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&auto=format&fit=crop&q=80" alt="Ноутбук">
+        </div>
+        <div class="product-name">MacBook Pro 14"</div>
+        <div class="product-desc">M3 Pro · 18 ГБ</div>
+        <div class="product-bottom">
+          <div class="product-price">199 990 ₽</div>
+          <button class="add-btn"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+
+      <div class="product">
+        <div class="product-img-wrap">
+          <span class="product-tag">-15%</span>
+          <img src="https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400&auto=format&fit=crop&q=80" alt="Наушники">
+        </div>
+        <div class="product-name">AirPods Pro 2</div>
+        <div class="product-desc">USB-C · ANC</div>
+        <div class="product-bottom">
+          <div class="product-price">21 990 ₽ <small>25 990 ₽</small></div>
+          <button class="add-btn"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+
+      <div class="product">
+        <div class="product-img-wrap">
+          <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&auto=format&fit=crop&q=80" alt="Часы">
+        </div>
+        <div class="product-name">Watch Ultra 2</div>
+        <div class="product-desc">Titanium · GPS</div>
+        <div class="product-bottom">
+          <div class="product-price">74 990 ₽</div>
+          <button class="add-btn"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <h3>Получите скидку 10%</h3>
+      <p>Подпишитесь на рассылку и получите промокод на первый заказ</p>
+      <a href="#" class="btn-gradient">Подписаться <i class="fas fa-arrow-right"></i></a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h5>Магазин</h5>
+          <a href="#">Каталог</a>
+          <a href="#">Акции</a>
+          <a href="#">Бренды</a>
+        </div>
+        <div class="footer-col">
+          <h5>Помощь</h5>
+          <a href="#">Доставка</a>
+          <a href="#">Оплата</a>
+          <a href="#">Возврат</a>
+        </div>
+        <div class="footer-col">
+          <h5>Контакты</h5>
+          <a href="#">8 800 555-01-23</a>
+          <a href="#">hello@flux.ru</a>
+        </div>
+        <div class="footer-col">
+          <h5>Соцсети</h5>
+          <a href="#">Telegram</a>
+          <a href="#">YouTube</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 Flux</span>
+        <span>Сделано с вниманием к деталям</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
