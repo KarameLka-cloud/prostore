@@ -49,6 +49,8 @@
   --color-brand-violet: oklch(0.6 0.25 295);
   --color-brand-blue: oklch(0.65 0.22 230);
   --color-brand-pink: oklch(0.7 0.25 340);
+  --color-glass: oklch(1 0 0 / 5%);
+  --color-panel: oklch(0.145 0 0 / 85%);
   --animate-blob: blob 7s infinite;
 }
 @keyframes blob {

@@ -18,13 +18,13 @@ export default function HomeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-black min-h-screen z-0">
-      <div className="mx-auto max-w-7xl px-4">
-        <BackgroundBlob />
+    <div className="relative isolate min-h-screen bg-black">
+      <BackgroundBlob />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <Suspense fallback={<HeaderSection />}>
           <SessionHeader />
         </Suspense>
-        <main className="mx-4">{children}</main>
+        <main>{children}</main>
         <FooterSection />
       </div>
     </div>

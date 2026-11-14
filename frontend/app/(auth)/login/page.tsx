@@ -3,129 +3,59 @@
 import { useActionState } from "react";
 import Link from "next/link";
 
-import { loginAction } from "@/features/auth";
+import { AuthShell, loginAction } from "@/features/auth";
+import InputField from "@/shared/ui/custom/input-field";
+import PrimaryButton from "@/shared/ui/custom/primary-button";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginAction, {});
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="mb-10 text-center">
-          <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            Вход в аккаунт
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Введите данные для входа в свой аккаунт
+    <AuthShell
+      title="Вход в аккаунт"
+      description="Введите данные для входа в свой аккаунт"
+      footerText="Нет аккаунта?"
+      footerLink={{ href: "/registration", label: "Зарегистрироваться" }}
+    >
+      <form action={formAction} className="space-y-5">
+        <InputField
+          id="login"
+          name="login"
+          type="text"
+          autoComplete="username"
+          label="Логин"
+          placeholder="admin"
+          required
+        />
+
+        <InputField
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          label="Пароль"
+          placeholder="••••••••"
+          required
+          hint={
+            <Link
+              href="/forgot-password"
+              className="text-xs text-muted-foreground underline-offset-4 hover:text-white hover:underline"
+            >
+              Забыли пароль?
+            </Link>
+          }
+        />
+
+        {state.error && (
+          <p role="alert" className="text-xs text-red-400">
+            {state.error}
           </p>
-        </div>
+        )}
 
-        {/* Form */}
-        <form
-          action={formAction}
-          className="rounded-2xl border border-white/10 bg-black/40 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl"
-        >
-          <div className="mb-6 space-y-5">
-            {/* Login */}
-            <div className="space-y-2">
-              <label
-                htmlFor="login"
-                className="text-xs font-medium text-muted-foreground"
-              >
-                Логин
-              </label>
-              <input
-                id="login"
-                name="login"
-                type="text"
-                autoComplete="username"
-                placeholder="admin"
-                required
-                className="flex h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-muted-foreground/60 outline-none transition-all focus:border-brand-violet/50 focus:ring-1 focus:ring-brand-violet/30 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="text-xs font-medium text-muted-foreground"
-                >
-                  Пароль
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-muted-foreground underline-offset-4 hover:text-white/80 hover:underline"
-                >
-                  Забыли пароль?
-                </Link>
-              </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-                required
-                className="flex h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-muted-foreground/60 outline-none transition-all focus:border-brand-violet/50 focus:ring-1 focus:ring-brand-violet/30 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-
-            {state.error && (
-              <p className="text-xs text-red-400" role="alert">
-                {state.error}
-              </p>
-            )}
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isPending}
-            className="relative flex h-10 w-full items-center justify-center overflow-hidden rounded-lg bg-linear-to-r from-brand-violet to-brand-pink text-sm font-semibold text-white shadow-[0_4px_16px_rgba(139,92,246,0.35)] transition-all hover:shadow-[0_6px_24px_rgba(139,92,246,0.5)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isPending ? (
-              <span className="flex items-center gap-2">
-                <svg
-                  className="size-4 animate-spin"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Вход...
-              </span>
-            ) : (
-              "Войти"
-            )}
-          </button>
-        </form>
-
-        {/* Footer */}
-        <p className="mt-8 text-center text-sm text-muted-foreground">
-          Нет аккаунта?{" "}
-          <Link
-            href="/registration"
-            className="font-medium text-white underline-offset-4 hover:underline"
-          >
-            Зарегистрироваться
-          </Link>
-        </p>
-      </div>
-    </div>
+        <PrimaryButton loading={isPending} loadingText="Вход...">
+          Войти
+        </PrimaryButton>
+      </form>
+    </AuthShell>
   );
 }

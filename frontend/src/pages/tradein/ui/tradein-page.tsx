@@ -1,6 +1,10 @@
-import PageHeader from "@/shared/ui/custom/page-header";
 import Image from "next/image";
 import { Send, ClipboardCheck, Store } from "lucide-react";
+
+import { contactConfig } from "@/shared/config/site";
+import GlassCard from "@/shared/ui/custom/glass-card";
+import PageHeader from "@/shared/ui/custom/page-header";
+import PageSection from "@/shared/ui/custom/page-section";
 
 const STEPS = [
   {
@@ -27,7 +31,7 @@ const STEPS = [
     title: "Приезжайте в магазин",
     description: "Привезите товар к нам",
     details: [
-      "г. Иркутск, ул. Иркутской 30-й Дивизии, 55",
+      contactConfig.address,
       "Очная диагностика (5-10 минут)",
       "Выплатим деньги или оформим обмен на выбранную игру / приставку",
     ],
@@ -36,54 +40,49 @@ const STEPS = [
 
 export default function TradeInPage() {
   return (
-    <section className="pb-20">
+    <PageSection>
       <PageHeader>Как работает TradeIn — в 3 шага</PageHeader>
 
       <div className="grid items-start gap-10 md:grid-cols-2">
         <div className="flex flex-col gap-6">
-          {STEPS.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={index}
-                className="group relative overflow-hidden rounded-[24px] border border-white/10 bg-glass p-8 backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_40px_rgba(139,92,246,0.15)]"
-              >
-                <div className="pointer-events-none absolute -inset-px rounded-[24px] bg-linear-to-br from-brand-violet/5 via-brand-blue/5 to-brand-pink/5 opacity-0 transition-opacity group-hover:opacity-100" />
-
-                <div className="mb-4 flex items-center gap-4">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-brand-violet via-brand-blue to-brand-pink text-sm font-bold text-white shadow-lg">
-                    {index + 1}
-                  </div>
-
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white">
-                    <Icon className="size-5" />
-                  </div>
-
-                  <h4 className="text-lg font-semibold text-white">
-                    {step.title}
-                  </h4>
+          {STEPS.map(({ icon: Icon, title, description, details }, index) => (
+            <GlassCard
+              key={title}
+              hover
+              overlay="hover"
+              className="rounded-[24px]"
+            >
+              <div className="mb-4 flex items-center gap-4">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-brand-violet via-brand-blue to-brand-pink text-sm font-bold text-white shadow-lg">
+                  {index + 1}
                 </div>
 
-                <p className="mb-4 text-[15px] leading-relaxed text-muted-foreground">
-                  {step.description}
-                </p>
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white">
+                  <Icon className="size-5" />
+                </div>
 
-                {step.details.length > 0 && (
-                  <ul className="space-y-2">
-                    {step.details.map((detail, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-sm text-muted-foreground"
-                      >
-                        <span className="mt-1 size-1.5 shrink-0 rounded-full bg-linear-to-r from-brand-violet to-brand-pink" />
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <h2 className="text-lg font-semibold text-white">{title}</h2>
               </div>
-            );
-          })}
+
+              <p className="mb-4 text-[15px] leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+
+              {details.length > 0 && (
+                <ul className="space-y-2">
+                  {details.map((detail) => (
+                    <li
+                      key={detail}
+                      className="flex items-start gap-2 text-sm text-muted-foreground"
+                    >
+                      <span className="mt-1 size-1.5 shrink-0 rounded-full bg-linear-to-r from-brand-violet to-brand-pink" />
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </GlassCard>
+          ))}
         </div>
 
         <div className="flex items-start justify-center">
@@ -92,10 +91,11 @@ export default function TradeInPage() {
             alt="TradeIn"
             width={600}
             height={500}
+            loading="eager"
             className="w-full rounded-[24px] border border-white/10 bg-glass object-cover shadow-2xl"
           />
         </div>
       </div>
-    </section>
+    </PageSection>
   );
 }

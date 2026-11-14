@@ -1,6 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+
 import { siteConfig } from "@/shared/config/site";
+import GradientText from "@/shared/ui/custom/gradient-text";
 
 export default function HeroSection() {
   return (
@@ -8,17 +10,15 @@ export default function HeroSection() {
       <div className="grid items-center gap-14 md:grid-cols-2">
         <div>
           <h1 className="mb-6 text-[40px] font-extrabold leading-[1.05] tracking-[-1px] sm:text-5xl lg:text-[60px] lg:tracking-[-2px]">
-            <em className="bg-linear-to-br from-brand-violet via-brand-blue to-brand-pink bg-clip-text not-italic text-transparent">
-              Технологии в новом свете
-            </em>
+            <GradientText>Технологии в новом свете</GradientText>
           </h1>
 
-          <p className="mb-9 max-w-115 text-[17px] text-muted">
+          <p className="mb-9 max-w-115 text-[17px] text-muted-foreground">
             {siteConfig.description}
           </p>
 
           <Link
-            href="catalog"
+            href="/catalog"
             className="inline-flex items-center gap-2.5 rounded-full bg-linear-to-br from-brand-violet to-brand-pink px-8 py-[17px] text-[15px] font-semibold text-white shadow-[0_8px_24px_rgba(139,92,246,0.4)] transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(139,92,246,0.6)]"
           >
             Смотреть каталог
@@ -26,7 +26,7 @@ export default function HeroSection() {
           </Link>
         </div>
 
-        <div className="relative aspect-square items-center justify-center hidden md:block">
+        <div className="relative hidden aspect-square items-center justify-center md:block">
           <div
             aria-hidden="true"
             className="absolute inset-0 rounded-[32px] bg-linear-to-br from-brand-violet/30 to-brand-pink/30 blur-2xl"
