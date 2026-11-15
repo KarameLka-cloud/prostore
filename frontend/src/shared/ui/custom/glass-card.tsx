@@ -11,11 +11,13 @@ interface GlassCardProps extends React.ComponentProps<"div"> {
   padding?: keyof typeof paddingStyles;
   hover?: boolean;
   overlay?: "none" | "glow" | "hover";
+  contentClassName?: string;
 }
 
 export default function GlassCard({
   children,
   className,
+  contentClassName,
   padding = "md",
   hover = false,
   overlay = "none",
@@ -43,7 +45,7 @@ export default function GlassCard({
           )}
         />
       )}
-      <div className="relative">{children}</div>
+      <div className={cn("relative", contentClassName)}>{children}</div>
     </div>
   );
 }
