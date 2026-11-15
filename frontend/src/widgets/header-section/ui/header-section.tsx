@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, User, X } from "lucide-react";
@@ -10,6 +10,26 @@ import { navConfig, siteConfig } from "@/shared/config/site";
 export default function HeaderSection({ userName }: { userName?: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const userInitial = userName?.trim().charAt(0).toLocaleUpperCase("ru-RU");
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const { body } = document;
+    const previousOverflow = body.style.overflow;
+    const previousPaddingRight = body.style.paddingRight;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+
+    body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      body.style.overflow = previousOverflow;
+      body.style.paddingRight = previousPaddingRight;
+    };
+  }, [mobileMenuOpen]);
 
   return (
     <>
@@ -63,7 +83,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
       </header>
 
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-0 z-50 flex overflow-y-auto overscroll-contain bg-black/50 p-4 backdrop-blur-md transition-opacity duration-300 lg:hidden ${
           mobileMenuOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
@@ -73,7 +93,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
         inert={!mobileMenuOpen}
       >
         <div
-          className="w-full max-w-sm rounded-3xl border border-white/10 bg-panel/80 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+          className="m-auto w-full max-w-sm rounded-3xl border border-white/10 bg-panel/80 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
           onClick={(event) => event.stopPropagation()}
         >
           <div className="mb-8 flex items-center justify-end">
