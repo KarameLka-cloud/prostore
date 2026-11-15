@@ -111,7 +111,7 @@ export default function CatalogProductPage({
             </div>
 
             <GlassCard padding="sm" className="self-start sm:p-8">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-white/80">
                 {product.category.name} <span aria-hidden="true">·</span>{" "}
                 {product.brand.name}
               </p>
@@ -121,7 +121,7 @@ export default function CatalogProductPage({
 
               <div className="mt-8 border-t border-white/10 pt-6">
                 <h2 className="text-xl font-semibold text-white">Описание</h2>
-                <p className="mt-3 whitespace-pre-wrap leading-7 text-muted-foreground">
+                <p className="mt-3 whitespace-pre-wrap leading-7 text-white/80">
                   {product.description?.trim() ||
                     "Описание товара пока не добавлено."}
                 </p>

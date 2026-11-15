@@ -18,7 +18,7 @@ export default function QueryState({
   children,
 }: QueryStateProps) {
   if (loading) {
-    return <p className="text-sm text-muted-foreground">{loadingText}</p>;
+    return <p className="text-sm text-white/80">{loadingText}</p>;
   }
 
   if (error) {

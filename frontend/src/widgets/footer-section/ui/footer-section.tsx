@@ -33,7 +33,7 @@ export default async function FooterSection() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-[15px] text-muted-foreground transition-colors hover:text-white"
+              className="text-[15px] text-white/80 transition-colors hover:text-white"
             >
               {item.label}
             </Link>
@@ -41,7 +41,7 @@ export default async function FooterSection() {
         </nav>
       </div>
 
-      <div className="mt-10 flex flex-wrap justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-muted-foreground">
+      <div className="mt-10 flex flex-wrap justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-white/80">
         <span>
           © {currentYear} {siteConfig.name}
         </span>

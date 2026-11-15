@@ -47,7 +47,7 @@ export default function CreditPage() {
             Любой товар можно приобрести в рассрочку или кредит
           </h2>
         </div>
-        <p className="text-center mt-4 text-[17px] leading-relaxed text-muted-foreground">
+        <p className="text-center mt-4 text-[17px] leading-relaxed text-white/80">
           Специально для Вас — мы подготовили лучшие кредитные предложения
         </p>
       </GlassCard>
@@ -90,7 +90,7 @@ export default function CreditPage() {
               className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 text-center transition-colors duration-300 hover:border-white/20"
             >
               <div className="mb-2 text-3xl font-bold text-white">{rate}</div>
-              <div className="text-sm text-muted-foreground">{months}</div>
+              <div className="text-sm text-white/80">{months}</div>
             </div>
           ))}
         </div>
@@ -102,8 +102,8 @@ export default function CreditPage() {
         className="mx-auto max-w-3xl lg:p-8"
       >
         <div className="flex justify-center items-start gap-3">
-          <Info className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
-          <p className="text-[15px] leading-relaxed text-muted-foreground">
+          <Info className="mt-0.5 size-5 shrink-0 text-white/80" />
+          <p className="text-[15px] leading-relaxed text-white/80">
             Точную сумму для оформления Вам скажут менеджеры
           </p>
         </div>

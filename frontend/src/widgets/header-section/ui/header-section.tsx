@@ -31,7 +31,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-white"
+                className="text-sm font-medium text-white/80 transition-colors hover:text-white"
               >
                 {item.label}
               </Link>
@@ -91,7 +91,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="py-4 text-center text-lg font-medium text-muted-foreground transition-colors hover:text-white"
+                className="py-4 text-center text-lg font-medium text-white/80 transition-colors hover:text-white"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.label}

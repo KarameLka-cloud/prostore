@@ -13,7 +13,7 @@ export default function AboutPage() {
 
       <div className="mx-auto mb-16 grid max-w-5xl items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <GlassCard overlay="glow" padding="lg">
-          <p className="text-[17px] leading-relaxed text-muted-foreground">
+          <p className="text-[17px] leading-relaxed text-white/80">
             Привет! Я <span className="font-semibold text-white">Андрей</span> —
             основатель ProStore. Если вы дочитали до этого раздела, значит, вам
             действительно интересно, кто стоит за магазином и у кого вы
@@ -36,7 +36,7 @@ export default function AboutPage() {
                 <p className="text-[15px] font-medium text-white">
                   Фото основателя
                 </p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+                <p className="mt-1.5 text-[13px] leading-relaxed text-white/80">
                   Здесь скоро появится фотография
                 </p>
               </div>
@@ -57,7 +57,7 @@ export default function AboutPage() {
           </h2>
           <IconBadge icon={Sparkles} />
         </div>
-        <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground">
+        <p className="mt-4 text-[17px] leading-relaxed text-white/80">
           Мы любим технику сами, поэтому прекрасно понимаем, что покупка новой
           PlayStation, Nintendo, Dyson, DJI или любого другого устройства — это
           всегда немного больше, чем просто коробка с гаджетом. Это ожидание.
@@ -72,7 +72,7 @@ export default function AboutPage() {
       </GlassCard>
 
       <GlassCard overlay="glow" padding="lg" className="mx-auto max-w-3xl">
-        <div className="space-y-4 text-[17px] leading-relaxed text-muted-foreground">
+        <div className="space-y-4 text-[17px] leading-relaxed text-white/80">
           <p>
             Мы не хотим быть магазином, куда человек пришёл один раз и забыл.
             Хотим быть тем самым магазином, куда возвращаются. За новой
@@ -86,10 +86,10 @@ export default function AboutPage() {
           <p className="pt-2 text-center text-lg font-semibold">
             <GradientText>💜 Спасибо, что выбираете ProStore 💜</GradientText>
           </p>
-          <p className="text-center text-muted-foreground">
+          <p className="text-center text-white/80">
             🐵 Просто больше, чем техника 🐒
           </p>
-          <p className="text-center text-muted-foreground">
+          <p className="text-center text-white/80">
             👋🏻 До встречи в магазине! 👋🏻
           </p>
         </div>

@@ -25,12 +25,12 @@ export default function AuthShell({
         <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
           {title}
         </h1>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        <p className="text-sm text-white/80">{description}</p>
       </header>
 
       <GlassCard overlay="glow">{children}</GlassCard>
 
-      <p className="mt-8 text-center text-sm text-muted-foreground">
+      <p className="mt-8 text-center text-sm text-white/80">
         {footerText}{" "}
         <Link
           href={footerLink.href}

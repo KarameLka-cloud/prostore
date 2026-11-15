@@ -1,7 +1,7 @@
 import { cn } from "@/shared/lib/shadcn/utils";
 
 const tones = {
-  muted: "border-white/10 bg-white/5 text-muted-foreground",
+  muted: "border-white/10 bg-white/5 text-white/80",
   error: "border-red-500/30 bg-red-950/40 text-red-200",
 } as const;
 

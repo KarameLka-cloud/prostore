@@ -1,7 +1,7 @@
 import { cn } from "@/shared/lib/shadcn/utils";
 
 const inputStyles =
-  "flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition-all placeholder:text-muted-foreground/60 focus:border-brand-violet/50 focus:ring-2 focus:ring-brand-violet/20 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-red-500/50 aria-invalid:focus:border-red-500/50 aria-invalid:focus:ring-red-500/20";
+  "flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition-all placeholder:text-white/40 focus:border-brand-violet/50 focus:ring-2 focus:ring-brand-violet/20 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-red-500/50 aria-invalid:focus:border-red-500/50 aria-invalid:focus:ring-red-500/20";
 
 interface InputFieldProps extends React.ComponentProps<"input"> {
   label: string;
@@ -20,7 +20,7 @@ export default function InputField({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <label htmlFor={id} className="text-xs font-medium text-muted-foreground">
+        <label htmlFor={id} className="text-xs font-medium text-white/80">
           {label}
         </label>
         {hint}

@@ -48,7 +48,7 @@ function ContactMap() {
       </div>
       <div>
         <p className="text-[15px] font-medium text-white">Карта проезда</p>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 text-[13px] leading-relaxed text-white/80">
           Здесь скоро появится интерактивная карта
         </p>
       </div>
@@ -68,7 +68,7 @@ export default function ContactsPage() {
               {contactsConfig.title}
             </h2>
             {contactsConfig.description && (
-              <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mt-3 text-[15px] leading-relaxed text-white/80">
                 {contactsConfig.description}
               </p>
             )}
@@ -87,7 +87,7 @@ export default function ContactsPage() {
                       <div className="flex items-center gap-4">
                         <IconBadge icon={icon} size="sm" variant="outline" />
                         <div className="min-w-0">
-                          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                          <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/80">
                             {label}
                           </p>
                           {href ? (
@@ -117,10 +117,10 @@ export default function ContactsPage() {
             <GlassCard padding="sm" hover overlay="hover">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/80">
                     Мы в мессенджерах
                   </p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+                  <p className="mt-1 text-[13px] leading-relaxed text-white/80">
                     Ответим на вопросы и поможем с выбором
                   </p>
                 </div>

@@ -64,7 +64,7 @@ export default function TradeInPage() {
                 <h2 className="text-lg font-semibold text-white">{title}</h2>
               </div>
 
-              <p className="mb-4 text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mb-4 text-[15px] leading-relaxed text-white/80">
                 {description}
               </p>
 
@@ -73,7 +73,7 @@ export default function TradeInPage() {
                   {details.map((detail) => (
                     <li
                       key={detail}
-                      className="flex items-start gap-2 text-sm text-muted-foreground"
+                      className="flex items-start gap-2 text-sm text-white/80"
                     >
                       <span className="mt-1 size-1.5 shrink-0 rounded-full bg-linear-to-r from-brand-violet to-brand-pink" />
                       {detail}

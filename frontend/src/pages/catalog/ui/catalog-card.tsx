@@ -47,7 +47,7 @@ export default function CatalogCard({
       {description && (
         <p
           className={cn(
-            "text-[13px] text-muted-foreground",
+            "text-[13px] text-white/80",
             descriptionLines === 4 ? "line-clamp-4" : "line-clamp-3",
           )}
         >

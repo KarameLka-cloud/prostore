@@ -13,7 +13,7 @@ export default function HeroSection() {
             <GradientText>Технологии в новом свете</GradientText>
           </h1>
 
-          <p className="mb-9 max-w-115 text-[17px] text-muted-foreground">
+          <p className="mb-9 max-w-115 text-[17px] text-white/80">
             {siteConfig.description}
           </p>
 

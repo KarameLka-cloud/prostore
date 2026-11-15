@@ -22,7 +22,7 @@ export default function RentalPage() {
         <h2 className="text-xl font-bold text-white">
           Раздел аренды скоро появится
         </h2>
-        <p className="mt-4 text-[17px] leading-relaxed text-muted-foreground">
+        <p className="mt-4 text-[17px] leading-relaxed text-white/80">
           Пока мы готовим подробные условия, вы можете уточнить детали аренды
           техники по телефону.
         </p>
