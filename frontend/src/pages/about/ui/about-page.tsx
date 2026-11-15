@@ -11,7 +11,7 @@ export default function AboutPage() {
     <PageSection>
       <PageHeader>О нас</PageHeader>
 
-      <div className="mx-auto mb-16 grid max-w-5xl items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="mx-auto mb-16 grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <GlassCard overlay="glow" padding="lg">
           <p className="text-[17px] leading-relaxed text-white/80">
             Привет! Я <span className="font-semibold text-white">Андрей</span> —
@@ -28,7 +28,7 @@ export default function AboutPage() {
           />
 
           <GlassCard padding="none" className="p-3">
-            <div className="flex aspect-4/5 flex-col items-center justify-center gap-4 rounded-[18px] border border-dashed border-white/20 bg-linear-to-br from-white/5 via-transparent to-white/5 px-6 text-center">
+            <div className="flex aspect-5/5 flex-col items-center justify-center gap-4 rounded-[18px] border border-dashed border-white/20 bg-linear-to-br from-white/5 via-transparent to-white/5 px-6 text-center">
               <div className="flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
                 <ImagePlus className="size-6 text-white/60" />
               </div>
@@ -45,11 +45,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <GlassCard
-        overlay="glow"
-        padding="lg"
-        className="mx-auto mb-16 max-w-5xl"
-      >
+      <GlassCard overlay="glow" padding="lg" className="mx-auto mb-16">
         <div className="flex justify-center items-center gap-3">
           <IconBadge icon={Sparkles} />
           <h2 className="text-xl font-bold text-white">

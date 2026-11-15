@@ -11,7 +11,7 @@ export default async function FooterSection() {
   return (
     <footer className="border-t border-white/10 pb-8 pt-12">
       <div className="grid gap-10 items-center sm:grid-cols-2">
-        <div className="flex w-[136px] flex-col items-start gap-5">
+        <div className="mx-auto sm:mx-0 flex w-34 flex-col items-center sm:items-start gap-5">
           <Link href="/" className="flex w-full">
             <Image
               src="/images/logo.png"
@@ -41,7 +41,7 @@ export default async function FooterSection() {
         </nav>
       </div>
 
-      <div className="mt-10 flex flex-wrap justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-white/80">
+      <div className="mt-10 flex flex-wrap justify-center sm:justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-white/80">
         <span>
           © {currentYear} {siteConfig.name}
         </span>

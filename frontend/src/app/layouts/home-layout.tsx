@@ -24,7 +24,7 @@ export default function HomeLayout({
         <Suspense fallback={<HeaderSection />}>
           <SessionHeader />
         </Suspense>
-        <main>{children}</main>
+        <main className="mx-2">{children}</main>
         <FooterSection />
       </div>
     </div>
