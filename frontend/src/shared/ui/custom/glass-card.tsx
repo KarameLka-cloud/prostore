@@ -24,7 +24,7 @@ export default function GlassCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-white/10 bg-glass backdrop-blur-xl",
+        "relative overflow-hidden rounded-3xl border border-white/10 bg-glass backdrop-blur-xl select-none",
         paddingStyles[padding],
         (hover || overlay === "hover") && "group",
         hover &&
@@ -38,7 +38,8 @@ export default function GlassCard({
           aria-hidden="true"
           className={cn(
             "pointer-events-none absolute inset-0 bg-linear-to-br from-brand-violet/10 via-brand-blue/5 to-brand-pink/10",
-            overlay === "hover" && "opacity-0 transition-opacity group-hover:opacity-100",
+            overlay === "hover" &&
+              "opacity-0 transition-opacity group-hover:opacity-100",
           )}
         />
       )}

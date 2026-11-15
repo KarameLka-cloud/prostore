@@ -19,7 +19,7 @@ export default function HeroSection() {
 
           <Link
             href="/catalog"
-            className="inline-flex items-center gap-2.5 rounded-full bg-linear-to-br from-brand-violet to-brand-pink px-8 py-[17px] text-[15px] font-semibold text-white shadow-[0_8px_24px_rgba(139,92,246,0.4)] transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(139,92,246,0.6)]"
+            className="w-fit mx-auto md:mx-0 flex items-center gap-2.5 rounded-full bg-linear-to-br from-brand-violet to-brand-pink px-8 py-4.25 text-[15px] font-semibold text-white shadow-[0_8px_24px_rgba(139,92,246,0.4)] transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(139,92,246,0.6)]"
           >
             Смотреть каталог
             <ArrowRight className="size-4" />

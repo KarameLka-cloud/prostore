@@ -14,7 +14,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
   return (
     <>
       <header className="sticky top-4 z-50 mb-2">
-        <div className="flex h-17 items-center justify-between rounded-full border border-white/10 bg-panel py-2 pl-5 pr-2 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl md:py-3 md:pl-7 md:pr-3">
+        <div className="flex h-17 items-center justify-between rounded-full border border-white/10 bg-panel/50 py-2 pl-5 pr-2 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm md:py-3 md:pl-7 md:pr-3">
           <Link href="/" className="flex shrink-0 items-center">
             <Image
               src="/images/logo.png"
@@ -22,7 +22,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
               width={720}
               height={389}
               loading="eager"
-              className="h-12 w-auto object-contain"
+              className="h-10 w-auto object-contain"
             />
           </Link>
 
@@ -63,7 +63,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
       </header>
 
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md transition-opacity duration-300 lg:hidden ${
           mobileMenuOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
@@ -73,7 +73,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
         inert={!mobileMenuOpen}
       >
         <div
-          className="w-full max-w-sm rounded-3xl border border-white/10 bg-panel/95 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+          className="w-full max-w-sm rounded-3xl border border-white/10 bg-panel/80 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
           onClick={(event) => event.stopPropagation()}
         >
           <div className="mb-8 flex items-center justify-end">

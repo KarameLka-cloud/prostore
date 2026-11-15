@@ -1,37 +1,32 @@
+import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Phone, Clock } from "lucide-react";
 
-import { contactConfig, navConfig, siteConfig } from "@/shared/config/site";
+import { navConfig, siteConfig } from "@/shared/config/site";
 import { getCurrentYear } from "@/shared/lib";
+import SocialLinks from "@/shared/ui/custom/social-links";
 
 export default async function FooterSection() {
   const currentYear = await getCurrentYear();
 
   return (
     <footer className="border-t border-white/10 pb-8 pt-12">
-      <div className="grid gap-10 sm:grid-cols-2">
-        <div className="space-y-3 text-white">
-          <div className="flex items-start gap-3">
-            <MapPin className="mt-0.5 size-4 shrink-0 text-brand-violet" />
-            <span className="text-[15px]">{contactConfig.address}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Phone className="size-4 shrink-0 text-brand-violet" />
-            <a
-              href={contactConfig.phoneHref}
-              className="text-[15px] transition-colors hover:text-muted-foreground"
-            >
-              {contactConfig.phone}
-            </a>
-          </div>
-          <div className="flex items-center gap-3">
-            <Clock className="size-4 shrink-0 text-brand-violet" />
-            <span className="text-[15px]">{contactConfig.hours}</span>
-          </div>
+      <div className="grid gap-10 items-center sm:grid-cols-2">
+        <div className="flex w-[136px] flex-col items-start gap-5">
+          <Link href="/" className="flex w-full">
+            <Image
+              src="/images/logo.png"
+              alt={siteConfig.name}
+              width={720}
+              height={389}
+              className="h-auto w-full object-contain"
+            />
+          </Link>
+
+          <SocialLinks className="w-full" />
         </div>
 
         <nav
-          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:justify-end"
+          className="flex flex-wrap items-start justify-center gap-x-6 gap-y-3 sm:justify-end"
           aria-label="Навигация в подвале"
         >
           {navConfig.map((item) => (

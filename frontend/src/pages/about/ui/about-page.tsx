@@ -1,4 +1,4 @@
-import { Heart, ImagePlus, Sparkles } from "lucide-react";
+import { ImagePlus, Sparkles } from "lucide-react";
 
 import GlassCard from "@/shared/ui/custom/glass-card";
 import GradientText from "@/shared/ui/custom/gradient-text";

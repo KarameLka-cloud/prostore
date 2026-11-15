@@ -63,13 +63,12 @@ export default function CreditPage() {
               overlay="hover"
               className="rounded-[20px]"
             >
-              <IconBadge
-                icon={icon}
-                size="sm"
-                variant="outline"
-                className="mb-3"
-              />
-              <p className="text-[15px] font-medium text-white">{title}</p>
+              <div className="flex items-center gap-3">
+                <IconBadge icon={icon} size="sm" variant="outline" />
+                <p className="leading-none text-[15px] font-medium text-white">
+                  {title}
+                </p>
+              </div>
             </GlassCard>
           ))}
         </div>

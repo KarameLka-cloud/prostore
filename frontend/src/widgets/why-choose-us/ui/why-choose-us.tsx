@@ -40,7 +40,7 @@ const REASONS = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="my-18">
+    <section className="my-16">
       <SectionTitle>Почему нас выбирают?</SectionTitle>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {REASONS.map(({ icon, title }) => (
@@ -53,7 +53,9 @@ export default function WhyChooseUs() {
           >
             <div className="flex items-center gap-3">
               <IconBadge icon={icon} size="sm" variant="outline" />
-              <p className="text-[15px] font-medium text-white">{title}</p>
+              <p className="leading-none text-[15px] font-medium text-white">
+                {title}
+              </p>
             </div>
           </GlassCard>
         ))}
