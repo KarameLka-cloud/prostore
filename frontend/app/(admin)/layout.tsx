@@ -1,3 +1,6 @@
+import Image from "next/image";
+import Link from "next/link";
+import { getSession } from "@/features/auth/lib/cookies";
 import { logoutAction } from "@/features/auth";
 import {
   Collapsible,
@@ -23,8 +26,9 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/shared/ui/shadcn/sidebar";
+import { Avatar, AvatarFallback } from "@/shared/ui/shadcn/avatar";
 
-import { ChevronRight, SquareTerminal } from "lucide-react";
+import { ChevronRight, LogOut, SquareTerminal } from "lucide-react";
 
 const items = [
   {
@@ -48,11 +52,31 @@ const items = [
   },
 ];
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await getSession();
+
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
-        <SidebarHeader>ПРОСТОР</SidebarHeader>
+        <SidebarHeader className="border-b border-sidebar-border p-4">
+          <Link
+            href="/"
+            aria-label="На главную"
+            className="flex min-w-0 flex-col items-center gap-2"
+          >
+            <Image
+              src="/images/logo.png"
+              alt="ПРОСТОР"
+              width={1626}
+              height={967}
+              className="h-8 w-auto max-w-full object-contain group-data-[collapsible=icon]:h-6 group-data-[collapsible=icon]:max-w-6"
+            />
+          </Link>
+        </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel>Управление</SidebarGroupLabel>
@@ -88,15 +112,31 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter>
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              className="flex w-full items-center justify-center rounded-md border border-white/10 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/10 hover:text-white"
-            >
-              Выйти
-            </button>
-          </form>
+        <SidebarFooter className="border-t border-sidebar-border p-2">
+          <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-3 px-1 py-2 group-data-[collapsible=icon]:hidden">
+              <Avatar>
+                <AvatarFallback>
+                  {session?.login.charAt(0).toLocaleUpperCase("ru-RU") ?? "?"}
+                </AvatarFallback>
+              </Avatar>
+              <p className="truncate text-sm font-medium">
+                {session?.login ?? "Пользователь"}
+              </p>
+            </div>
+            <form action={logoutAction} className="shrink-0">
+              <SidebarMenuButton
+                type="submit"
+                tooltip="Выйти"
+                className="w-auto text-muted-foreground hover:text-destructive"
+              >
+                <LogOut />
+                <span className="group-data-[collapsible=icon]:hidden">
+                  Выйти
+                </span>
+              </SidebarMenuButton>
+            </form>
+          </div>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
