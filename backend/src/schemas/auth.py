@@ -2,8 +2,16 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class LoginRequest(BaseModel):
-    login: str = Field(min_length=1, max_length=255)
-    password: str = Field(min_length=1, max_length=255)
+    login: str = Field(
+        min_length=1,
+        max_length=255,
+        description="Логин пользователя.",
+    )
+    password: str = Field(
+        min_length=1,
+        max_length=255,
+        description="Пароль пользователя.",
+    )
 
     @field_validator("login")
     @classmethod
@@ -17,7 +25,7 @@ class LoginRequest(BaseModel):
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    login: str
-    name: str
-    email: str
+    id: int = Field(description="Уникальный ID пользователя.")
+    login: str = Field(description="Логин пользователя.")
+    name: str = Field(description="Имя пользователя.")
+    email: str = Field(description="Электронная почта пользователя.")

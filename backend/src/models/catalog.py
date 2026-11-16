@@ -23,6 +23,7 @@ class Brand(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), unique=True)
     slug: Mapped[str] = mapped_column(String(120), unique=True)
+    image_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     products: Mapped[list["Product"]] = relationship(back_populates="brand")
 

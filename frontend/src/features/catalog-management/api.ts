@@ -9,6 +9,7 @@ export interface CatalogBrand {
   id: number;
   name: string;
   slug: string;
+  image_path: string | null;
 }
 
 export interface CatalogImage {

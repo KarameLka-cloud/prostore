@@ -38,10 +38,22 @@ uv run backend
 
 Сервер запускается на `http://localhost:8000`.
 
+### Swagger и OpenAPI
+
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+- OpenAPI JSON: `http://localhost:8000/openapi.json`
+
+В Swagger методы сгруппированы по аутентификации, публичному каталогу и
+административным разделам каталога. Для защищённых методов используйте кнопку
+**Authorize** и Bearer-токен сессии frontend. `POST /api/auth/login` проверяет
+учётные данные, но не возвращает токен: сессию формирует frontend, а backend
+проверяет её подпись с помощью общего `AUTH_SECRET`.
+
 - `POST /api/auth/login` — проверка логина и пароля. Тело запроса:
 
   ```json
-  { "login": "admin", "password": "password" }
+  { "login": "your-login", "password": "your-password" }
   ```
 
 - `GET /health` — проверка доступности сервиса.

@@ -99,9 +99,7 @@ export default function CatalogBrandPage({
             <li key={product.id}>
               <CatalogCard
                 href={`/catalog/${encodeURIComponent(categorySlug)}/${encodeURIComponent(brandSlug)}/${encodeURIComponent(product.slug)}`}
-                variant="product"
                 title={product.name}
-                description={product.description}
                 price={product.price}
                 image={
                   product.images[0]

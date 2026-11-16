@@ -4,21 +4,32 @@ import hmac
 import json
 import time
 
-from fastapi import Header, HTTPException, status
+from fastapi import HTTPException, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from src.configs.settings import settings
 
+session_bearer = HTTPBearer(
+    scheme_name="SessionBearer",
+    bearerFormat="Prostore session token",
+    description=(
+        "Токен сессии, сформированный frontend после успешной проверки логина "
+        "и пароля. Frontend и backend должны использовать одинаковый `AUTH_SECRET`."
+    ),
+    auto_error=False,
+)
+
 
 def require_session(
-    authorization: str | None = Header(default=None),
+    credentials: HTTPAuthorizationCredentials | None = Security(session_bearer),
 ) -> dict[str, object]:
-    if not authorization or not authorization.startswith("Bearer "):
+    if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Требуется авторизация",
         )
 
-    token = authorization.removeprefix("Bearer ")
+    token = credentials.credentials
     parts = token.split(".")
     if len(parts) != 2:
         raise HTTPException(

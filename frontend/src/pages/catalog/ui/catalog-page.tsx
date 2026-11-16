@@ -48,12 +48,11 @@ export default function CatalogPage() {
         empty={categories.length === 0}
         emptyText="Категории пока не добавлены."
       >
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {categories.map((category) => (
             <li key={category.id}>
               <CatalogCard
                 href={`/catalog/${encodeURIComponent(category.slug)}`}
-                variant="category"
                 title={category.name}
                 image={
                   category.image_path

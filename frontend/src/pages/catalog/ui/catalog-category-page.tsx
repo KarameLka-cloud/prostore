@@ -84,13 +84,17 @@ export default function CatalogCategoryPage({ slug }: { slug: string }) {
           empty={brands.length === 0}
           emptyText="В этой категории пока нет брендов с товарами."
         >
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5">
+          <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {brands.map((brand) => (
               <li key={brand.id}>
                 <CatalogCard
                   href={`/catalog/${encodeURIComponent(slug)}/${encodeURIComponent(brand.slug)}`}
-                  variant="brand"
                   title={brand.name}
+                  image={
+                    brand.image_path
+                      ? { src: brand.image_path, alt: brand.name }
+                      : null
+                  }
                 />
               </li>
             ))}

@@ -90,6 +90,8 @@ export default function AdminCatalogPage({
   const [brandName, setBrandName] = useState("");
   const [brandSlug, setBrandSlug] = useState("");
   const [editingBrand, setEditingBrand] = useState<number | null>(null);
+  const [brandImage, setBrandImage] = useState<File | null>(null);
+  const [brandImageError, setBrandImageError] = useState("");
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState("");
@@ -191,6 +193,8 @@ export default function AdminCatalogPage({
     setBrandName("");
     setBrandSlug("");
     setEditingBrand(null);
+    setBrandImage(null);
+    setBrandImageError("");
   }
 
   function openCreateModal() {
@@ -227,6 +231,8 @@ export default function AdminCatalogPage({
     setBrandName(brand.name);
     setBrandSlug(brand.slug);
     setEditingBrand(brand.id);
+    setBrandImage(null);
+    setBrandImageError("");
     setError("");
     setModalOpen(true);
   }
@@ -292,17 +298,19 @@ export default function AdminCatalogPage({
           body: JSON.stringify({ name }),
         },
       );
-      if (kind === "categories") {
-        const categoryId = editingId ?? savedItem?.id;
-        if (categoryId && categoryImage) {
-          if (!editingId) setEditingCategory(categoryId);
-          const formData = new FormData();
-          formData.append("file", categoryImage);
-          await catalogRequest<CatalogCategory>(
-            `categories/${categoryId}/image`,
-            { method: "POST", body: formData },
-          );
+      const itemId = editingId ?? savedItem?.id;
+      const image = kind === "categories" ? categoryImage : brandImage;
+      if (itemId && image) {
+        if (!editingId) {
+          if (kind === "categories") setEditingCategory(itemId);
+          else setEditingBrand(itemId);
         }
+        const formData = new FormData();
+        formData.append("file", image);
+        await catalogRequest(`${kind}/${itemId}/image`, {
+          method: "POST",
+          body: formData,
+        });
       }
       closeModal();
       await refresh();
@@ -660,6 +668,12 @@ export default function AdminCatalogPage({
               name={categoryName}
               slug={categorySlug}
               image={categoryImage}
+              imagePath={
+                editingCategory === null
+                  ? null
+                  : categories.find((category) => category.id === editingCategory)
+                      ?.image_path ?? null
+              }
               saving={saving}
               editing={editingCategory !== null}
               onNameChange={(name) => {
@@ -677,16 +691,22 @@ export default function AdminCatalogPage({
               kind="brands"
               name={brandName}
               slug={brandSlug}
-              image={null}
+              image={brandImage}
+              imagePath={
+                editingBrand === null
+                  ? null
+                  : brands.find((brand) => brand.id === editingBrand)
+                      ?.image_path ?? null
+              }
               saving={saving}
               editing={editingBrand !== null}
               onNameChange={(name) => {
                 setBrandName(name);
                 setBrandSlug(makeSlug(name));
               }}
-              onImageChange={() => undefined}
-              imageError=""
-              onImageError={() => undefined}
+              onImageChange={setBrandImage}
+              imageError={brandImageError}
+              onImageError={setBrandImageError}
               onSubmit={(event) => void submitNamedItem(event, "brands")}
               onCancel={closeModal}
             />
@@ -829,15 +849,17 @@ function NamedTable<T extends CatalogCategory | CatalogBrand>({
         </thead>
         <tbody className="divide-y">
           {items.map((item) => {
-            const category =
-              kind === "categories" ? (item as CatalogCategory) : null;
+            const imagePath =
+              kind === "categories"
+                ? (item as CatalogCategory).image_path
+                : (item as CatalogBrand).image_path;
             return (
               <tr key={item.id} className="hover:bg-muted/30">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    {category?.image_path ? (
+                    {imagePath ? (
                       <Image
-                        src={category.image_path}
+                        src={imagePath}
                         alt=""
                         width={40}
                         height={40}
@@ -943,6 +965,7 @@ function NamedForm({
   name,
   slug,
   image,
+  imagePath,
   saving,
   editing,
   onNameChange,
@@ -956,6 +979,7 @@ function NamedForm({
   name: string;
   slug: string;
   image: File | null;
+  imagePath: string | null;
   saving: boolean;
   editing: boolean;
   onNameChange: (value: string) => void;
@@ -987,36 +1011,47 @@ function NamedForm({
           Ссылка: /catalog/{slug || "slug"}
         </span>
       </label>
-      {isCategory && (
-        <label className="block space-y-1.5 text-sm">
-          <span>Изображение категории (JPEG, PNG или WebP; до 5 МБ)</span>
-          <Input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={(event) => {
-              const file = event.target.files?.[0] ?? null;
-              if (file && file.size > 5 * 1024 * 1024) {
-                event.target.value = "";
-                onImageChange(null);
-                onImageError("Размер изображения не должен превышать 5 МБ");
-                return;
-              }
-              onImageChange(file);
-              onImageError("");
-            }}
+      <label className="block space-y-1.5 text-sm">
+        <span>
+          Изображение {isCategory ? "категории" : "бренда"} (JPEG, PNG или WebP;
+          до 5 МБ)
+        </span>
+        <Input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={(event) => {
+            const file = event.target.files?.[0] ?? null;
+            if (file && file.size > 5 * 1024 * 1024) {
+              event.target.value = "";
+              onImageChange(null);
+              onImageError("Размер изображения не должен превышать 5 МБ");
+              return;
+            }
+            onImageChange(file);
+            onImageError("");
+          }}
+        />
+        {imageError && (
+          <span role="alert" className="block text-xs text-destructive">
+            {imageError}
+          </span>
+        )}
+        {image && (
+          <span className="block text-xs text-muted-foreground">
+            Выбран файл: {image.name}
+          </span>
+        )}
+        {!image && imagePath && (
+          <Image
+            src={imagePath}
+            alt=""
+            width={96}
+            height={96}
+            unoptimized
+            className="size-24 rounded-md border object-contain"
           />
-          {imageError && (
-            <span role="alert" className="block text-xs text-destructive">
-              {imageError}
-            </span>
-          )}
-          {image && (
-            <span className="block text-xs text-muted-foreground">
-              Выбран файл: {image.name}
-            </span>
-          )}
-        </label>
-      )}
+        )}
+      </label>
       <ModalActions
         saving={saving}
         submitLabel={
