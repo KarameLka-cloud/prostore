@@ -28,18 +28,14 @@ import {
 } from "@/shared/ui/shadcn/sidebar";
 import { Avatar, AvatarFallback } from "@/shared/ui/shadcn/avatar";
 
-import { ChevronRight, LogOut, SquareTerminal } from "lucide-react";
+import { ChevronRight, LogOut, Package } from "lucide-react";
 
 const items = [
   {
     title: "Каталог",
-    icon: SquareTerminal,
+    icon: Package,
     isActive: true,
     items: [
-      {
-        title: "Товары",
-        url: "/admin/catalog",
-      },
       {
         title: "Категории",
         url: "/admin/catalog/categories",
@@ -47,6 +43,10 @@ const items = [
       {
         title: "Бренды",
         url: "/admin/catalog/brands",
+      },
+      {
+        title: "Товары",
+        url: "/admin/catalog",
       },
     ],
   },
@@ -93,13 +93,15 @@ export default async function Layout({
                     >
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-open/collapsible:rotate-90" />
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
                         {item.items?.map((subItem) => (
                           <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton render={<a href={subItem.url} />}>
+                            <SidebarMenuSubButton
+                              render={<a href={subItem.url} />}
+                            >
                               <span>{subItem.title}</span>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
