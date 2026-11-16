@@ -71,6 +71,13 @@ class ProductCreate(BaseModel):
         decimal_places=2,
         description="Цена в валюте магазина, неотрицательное число до двух знаков после запятой.",
     )
+    old_price: Decimal | None = Field(
+        default=None,
+        ge=0,
+        max_digits=12,
+        decimal_places=2,
+        description="Старая цена товара для отображения скидки.",
+    )
     category_id: int = Field(description="ID существующей категории.")
     brand_id: int = Field(description="ID существующего бренда.")
 
@@ -97,6 +104,13 @@ class ProductUpdate(BaseModel):
         max_digits=12,
         decimal_places=2,
         description="Новая цена в валюте магазина, неотрицательное число до двух знаков после запятой.",
+    )
+    old_price: Decimal | None = Field(
+        default=None,
+        ge=0,
+        max_digits=12,
+        decimal_places=2,
+        description="Старая цена товара для отображения скидки.",
     )
     category_id: int | None = Field(
         default=None,

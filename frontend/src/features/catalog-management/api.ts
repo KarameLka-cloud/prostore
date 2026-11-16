@@ -23,6 +23,7 @@ export interface CatalogProduct {
   slug: string;
   description: string | null;
   price: string;
+  old_price: string | null;
   category_id: number;
   brand_id: number;
   category: CatalogCategory;

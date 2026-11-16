@@ -243,9 +243,16 @@ export default function AdminPopularProductsPage() {
                       {product.category.name} · {product.brand.name}
                     </p>
                   </div>
-                  <p className="hidden text-sm font-medium sm:block">
-                    {Number(product.price).toLocaleString("ru-RU")} ₽
-                  </p>
+                  <div className="hidden flex-col items-end sm:flex">
+                    {product.old_price && (
+                      <span className="text-xs text-muted-foreground line-through">
+                        {Number(product.old_price).toLocaleString("ru-RU")} ₽
+                      </span>
+                    )}
+                    <span className="text-sm font-medium">
+                      {Number(product.price).toLocaleString("ru-RU")} ₽
+                    </span>
+                  </div>
                   {selectedIndex >= 0 && (
                     <div className="flex shrink-0 items-center gap-1">
                       <span className="mr-1 text-xs text-muted-foreground">

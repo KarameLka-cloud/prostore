@@ -49,7 +49,7 @@ export default function AboutPage() {
         <div className="flex justify-center items-center gap-3">
           <IconBadge icon={Sparkles} />
           <h2 className="text-xl font-bold text-white">
-            ProStore — это не просто магазин приставок и техники
+            PROSTORE — это не просто магазин приставок и техники
           </h2>
         </div>
         <p className="mt-4 text-[17px] leading-relaxed text-white/80">

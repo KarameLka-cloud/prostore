@@ -10,6 +10,7 @@ interface CatalogCardProps {
     alt: string;
   } | null;
   price?: string;
+  oldPrice?: string | null;
 }
 
 export default function CatalogCard({
@@ -17,6 +18,7 @@ export default function CatalogCard({
   title,
   image,
   price,
+  oldPrice,
 }: CatalogCardProps) {
   return (
     <Link
@@ -46,9 +48,16 @@ export default function CatalogCard({
 
       <div className="mt-auto flex min-h-11 items-center justify-between pt-3">
         {price ? (
-          <p className="text-lg font-bold tracking-tight text-white">
-            {Number(price).toLocaleString("ru-RU")} ₽
-          </p>
+          <div className="flex flex-col">
+            {oldPrice && (
+              <span className="text-xs text-white/50 line-through">
+                {Number(oldPrice).toLocaleString("ru-RU")} ₽
+              </span>
+            )}
+            <span className="text-lg font-bold tracking-tight text-white">
+              {Number(price).toLocaleString("ru-RU")} ₽
+            </span>
+          </div>
         ) : (
           <span aria-hidden="true" />
         )}

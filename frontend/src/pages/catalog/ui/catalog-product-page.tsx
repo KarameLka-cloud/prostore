@@ -196,6 +196,11 @@ export default function CatalogProductPage({
 
                   <div className="mt-7">
                     <p className="text-sm text-white/55">Цена</p>
+                    {product.old_price && (
+                      <p className="mt-2 text-xl text-white/50 line-through">
+                        {Number(product.old_price).toLocaleString("ru-RU")} ₽
+                      </p>
+                    )}
                     <p className="mt-1 text-4xl font-bold tracking-tight text-white sm:text-5xl">
                       {Number(product.price).toLocaleString("ru-RU")} ₽
                     </p>

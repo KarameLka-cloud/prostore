@@ -35,6 +35,7 @@ interface ProductForm {
   name: string;
   description: string;
   price: string;
+  old_price: string;
   category_id: string;
   brand_id: string;
 }
@@ -43,6 +44,7 @@ const emptyProduct: ProductForm = {
   name: "",
   description: "",
   price: "",
+  old_price: "",
   category_id: "",
   brand_id: "",
 };
@@ -240,6 +242,7 @@ export default function AdminCatalogPage({
       name: product.name,
       description: product.description ?? "",
       price: product.price,
+      old_price: product.old_price ?? "",
       category_id: String(product.category_id),
       brand_id: String(product.brand_id),
     });
@@ -275,6 +278,7 @@ export default function AdminCatalogPage({
       const payload = {
         ...productForm,
         price: Number(productForm.price),
+        old_price: productForm.old_price ? Number(productForm.old_price) : null,
         category_id: Number(productForm.category_id),
         brand_id: Number(productForm.brand_id),
       };
@@ -555,7 +559,7 @@ export default function AdminCatalogPage({
                 />
               </label>
               <label className="block space-y-1.5 text-sm">
-                <span>Цена, ₽</span>
+                <span>Текущая цена, ₽</span>
                 <Input
                   required
                   type="number"
@@ -566,6 +570,21 @@ export default function AdminCatalogPage({
                     setProductForm({
                       ...productForm,
                       price: event.target.value,
+                    })
+                  }
+                />
+              </label>
+              <label className="block space-y-1.5 text-sm">
+                <span>Старая цена, ₽ (необязательно)</span>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={productForm.old_price}
+                  onChange={(event) =>
+                    setProductForm({
+                      ...productForm,
+                      old_price: event.target.value,
                     })
                   }
                 />
@@ -830,7 +849,14 @@ function ProductTable({
                   {product.brand.name}
                 </td>
                 <td className="px-4 py-3 font-medium">
-                  {formatPrice(product.price)}
+                  <div className="flex flex-col items-start">
+                    {product.old_price && (
+                      <span className="text-xs text-muted-foreground line-through">
+                        {formatPrice(product.old_price)}
+                      </span>
+                    )}
+                    <span>{formatPrice(product.price)}</span>
+                  </div>
                 </td>
                 <td className="px-4 py-3">
                   <RowActions

@@ -33,7 +33,7 @@ export interface SocialLinkConfig {
 }
 
 export const siteConfig: SiteConfig = {
-  name: "ПРОСТОР - магазин цифровой электроники",
+  name: "PROSTORE - магазин цифровой электроники",
   description:
     "Премиальная электроника с безупречным сервисом. Только оригинальные устройства и честные цены",
 };

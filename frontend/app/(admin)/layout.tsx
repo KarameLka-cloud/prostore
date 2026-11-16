@@ -90,7 +90,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             <Image
               src="/images/logo.png"
-              alt="ПРОСТОР"
+              alt="PROSTORE"
               width={1626}
               height={967}
               className="h-8 w-auto max-w-full object-contain group-data-[collapsible=icon]:h-6 group-data-[collapsible=icon]:max-w-6"

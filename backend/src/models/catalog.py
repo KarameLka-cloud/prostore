@@ -36,6 +36,7 @@ class Product(Base):
     slug: Mapped[str] = mapped_column(String(120), unique=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    old_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
     popular_position: Mapped[int | None] = mapped_column(Integer, unique=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     brand_id: Mapped[int] = mapped_column(ForeignKey("brands.id"))

@@ -73,6 +73,10 @@ export default function CatalogBrandPage({
     };
   }, [categorySlug, brandSlug]);
 
+  const sortedProducts = [...products].sort(
+    (left, right) => Number(left.price) - Number(right.price),
+  );
+
   return (
     <PageSection>
       <CatalogBreadcrumbs
@@ -95,12 +99,13 @@ export default function CatalogBrandPage({
         emptyText="У этого бренда пока нет товаров в выбранной категории."
       >
         <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {products.map((product) => (
+          {sortedProducts.map((product) => (
             <li key={product.id}>
               <CatalogCard
                 href={`/catalog/${encodeURIComponent(categorySlug)}/${encodeURIComponent(brandSlug)}/${encodeURIComponent(product.slug)}`}
                 title={product.name}
                 price={product.price}
+                oldPrice={product.old_price}
                 image={
                   product.images[0]
                     ? { src: product.images[0].path, alt: product.name }
