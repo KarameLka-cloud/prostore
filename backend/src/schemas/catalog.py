@@ -5,10 +5,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class CategoryCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
-    slug: str = Field(
-        min_length=1, max_length=120, pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$"
-    )
-    description: str | None = None
 
     @field_validator("name")
     @classmethod
@@ -23,15 +19,12 @@ class CategoryResponse(CategoryCreate):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    slug: str
     image_path: str | None
 
 
 class BrandCreate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
-    slug: str = Field(
-        min_length=1, max_length=120, pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$"
-    )
-    description: str | None = None
 
     @field_validator("name")
     @classmethod
@@ -46,6 +39,7 @@ class BrandResponse(BrandCreate):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    slug: str
 
 
 class ProductCreate(BaseModel):
@@ -82,6 +76,19 @@ class ProductUpdate(BaseModel):
         return normalized
 
 
+class PopularProductsUpdate(BaseModel):
+    product_ids: list[int] = Field(max_length=8)
+
+    @field_validator("product_ids")
+    @classmethod
+    def validate_product_ids(cls, value: list[int]) -> list[int]:
+        if any(product_id < 1 for product_id in value):
+            raise ValueError("ID товара должен быть положительным")
+        if len(set(value)) != len(value):
+            raise ValueError("Список популярных товаров не должен содержать дубликаты")
+        return value
+
+
 class ProductImageResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -93,6 +100,7 @@ class ProductResponse(ProductCreate):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    slug: str
     category: CategoryResponse
     brand: BrandResponse
     images: list[ProductImageResponse]

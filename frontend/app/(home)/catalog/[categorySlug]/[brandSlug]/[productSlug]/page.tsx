@@ -8,16 +8,16 @@ export default async function CatalogProductRoute({
   params: Promise<{
     categorySlug: string;
     brandSlug: string;
-    productId: string;
+    productSlug: string;
   }>;
 }) {
-  const { categorySlug, brandSlug, productId } = await params;
+  const { categorySlug, brandSlug, productSlug } = await params;
   return (
     <CatalogProductPage
-      key={`${categorySlug}/${brandSlug}/${productId}`}
+      key={`${categorySlug}/${brandSlug}/${productSlug}`}
       categorySlug={categorySlug}
       brandSlug={brandSlug}
-      productId={productId}
+      productSlug={productSlug}
     />
   );
 }

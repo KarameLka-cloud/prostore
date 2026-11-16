@@ -2,7 +2,6 @@ export interface CatalogCategory {
   id: number;
   name: string;
   slug: string;
-  description: string | null;
   image_path: string | null;
 }
 
@@ -10,7 +9,6 @@ export interface CatalogBrand {
   id: number;
   name: string;
   slug: string;
-  description: string | null;
 }
 
 export interface CatalogImage {
@@ -21,6 +19,7 @@ export interface CatalogImage {
 export interface CatalogProduct {
   id: number;
   name: string;
+  slug: string;
   description: string | null;
   price: string;
   category_id: number;

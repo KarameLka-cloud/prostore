@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import ForeignKey, Numeric, String, Text
+from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -12,7 +12,6 @@ class Category(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), unique=True)
     slug: Mapped[str] = mapped_column(String(120), unique=True)
-    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     products: Mapped[list["Product"]] = relationship(back_populates="category")
@@ -24,7 +23,6 @@ class Brand(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), unique=True)
     slug: Mapped[str] = mapped_column(String(120), unique=True)
-    description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     products: Mapped[list["Product"]] = relationship(back_populates="brand")
 
@@ -34,8 +32,10 @@ class Product(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), index=True)
+    slug: Mapped[str] = mapped_column(String(120), unique=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2))
+    popular_position: Mapped[int | None] = mapped_column(Integer, unique=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     brand_id: Mapped[int] = mapped_column(ForeignKey("brands.id"))
 

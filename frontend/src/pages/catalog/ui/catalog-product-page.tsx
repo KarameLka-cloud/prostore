@@ -17,13 +17,13 @@ import CatalogBreadcrumbs from "./catalog-breadcrumbs";
 interface CatalogProductPageProps {
   categorySlug: string;
   brandSlug: string;
-  productId: string;
+  productSlug: string;
 }
 
 export default function CatalogProductPage({
   categorySlug,
   brandSlug,
-  productId,
+  productSlug,
 }: CatalogProductPageProps) {
   const [product, setProduct] = useState<CatalogProduct | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -36,7 +36,7 @@ export default function CatalogProductPage({
     async function loadProduct() {
       try {
         const data = await catalogPublicRequest<CatalogProduct>(
-          `products/${encodeURIComponent(productId)}`,
+          `products/${encodeURIComponent(productSlug)}`,
         );
         if (
           data.category.slug !== categorySlug ||
@@ -62,7 +62,7 @@ export default function CatalogProductPage({
     return () => {
       active = false;
     };
-  }, [productId, categorySlug, brandSlug]);
+  }, [productSlug, categorySlug, brandSlug]);
 
   return (
     <PageSection>

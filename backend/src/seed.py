@@ -7,6 +7,7 @@ from src.core.security import hash_password
 from src.models import User
 
 ADMIN_LOGIN = "admin"
+ADMIN_NAME = "admin"
 ADMIN_PASSWORD = "password"
 ADMIN_EMAIL = "admin@prostore.local"
 
@@ -15,11 +16,12 @@ async def seed() -> None:
     """Create or update the default admin user."""
     try:
         async with AsyncSessionLocal() as session:
-            user = await session.scalar(select(User).where(User.name == ADMIN_LOGIN))
+            user = await session.scalar(select(User).where(User.login == ADMIN_LOGIN))
 
             if user is None:
                 user = User(
-                    name=ADMIN_LOGIN,
+                    login=ADMIN_LOGIN,
+                    name=ADMIN_NAME,
                     email=ADMIN_EMAIL,
                     password_hash=hash_password(ADMIN_PASSWORD),
                 )

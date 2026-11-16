@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { connection } from "next/server";
 import { getSession } from "@/features/auth/lib/cookies";
 import { logoutAction } from "@/features/auth";
 import {
@@ -48,17 +50,35 @@ const items = [
         title: "Товары",
         url: "/admin/catalog",
       },
+      {
+        title: "Популярные товары",
+        url: "/admin/catalog/popular-products",
+      },
     ],
   },
 ];
 
-export default async function Layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+async function SessionUser() {
+  await connection();
   const session = await getSession();
 
+  return <SessionUserContent login={session?.login} />;
+}
+
+function SessionUserContent({ login }: { login?: string }) {
+  return (
+    <div className="flex min-w-0 flex-1 items-center gap-3 px-1 py-2 group-data-[collapsible=icon]:hidden">
+      <Avatar>
+        <AvatarFallback>
+          {login?.charAt(0).toLocaleUpperCase("ru-RU") ?? "?"}
+        </AvatarFallback>
+      </Avatar>
+      <p className="truncate text-sm font-medium">{login ?? "Пользователь"}</p>
+    </div>
+  );
+}
+
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
@@ -116,16 +136,9 @@ export default async function Layout({
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border p-2">
           <div className="flex items-center gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-3 px-1 py-2 group-data-[collapsible=icon]:hidden">
-              <Avatar>
-                <AvatarFallback>
-                  {session?.login.charAt(0).toLocaleUpperCase("ru-RU") ?? "?"}
-                </AvatarFallback>
-              </Avatar>
-              <p className="truncate text-sm font-medium">
-                {session?.login ?? "Пользователь"}
-              </p>
-            </div>
+            <Suspense fallback={<SessionUserContent />}>
+              <SessionUser />
+            </Suspense>
             <form action={logoutAction} className="shrink-0">
               <SidebarMenuButton
                 type="submit"

@@ -2,7 +2,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -10,12 +10,14 @@ from sqlalchemy.orm import selectinload
 from src.configs.database import get_db
 from src.configs.settings import settings
 from src.core.session import require_session
+from src.core.slug import slugify
 from src.models import Brand, Category, Product, ProductImage
 from src.schemas import (
     BrandCreate,
     BrandResponse,
     CategoryCreate,
     CategoryResponse,
+    PopularProductsUpdate,
     ProductCreate,
     ProductResponse,
     ProductUpdate,
@@ -29,6 +31,7 @@ router = APIRouter(
 
 MAX_IMAGE_SIZE = 5 * 1024 * 1024
 MAX_IMAGES_PER_UPLOAD = 10
+MAX_POPULAR_PRODUCTS = 8
 IMAGE_FORMATS = {
     "image/jpeg": (".jpg", lambda data: data.startswith(b"\xff\xd8\xff")),
     "image/png": (".png", lambda data: data.startswith(b"\x89PNG\r\n\x1a\n")),
@@ -81,18 +84,24 @@ async def ensure_name_available(
         )
 
 
-async def ensure_slug_available(
+async def generate_unique_slug(
     db: AsyncSession,
-    model: type[Category] | type[Brand],
-    slug: str,
+    model: type[Category] | type[Brand] | type[Product],
+    name: str,
     current_id: int | None = None,
-) -> None:
-    existing = await db.scalar(select(model).where(model.slug == slug))
-    if existing is not None and existing.id != current_id:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Запись с таким тегом уже существует",
+) -> str:
+    base_slug = slugify(name)
+    slug = base_slug
+    suffix = 2
+    while True:
+        existing_id = await db.scalar(
+            select(model.id).where(model.slug == slug)
         )
+        if existing_id is None or existing_id == current_id:
+            return slug
+        suffix_text = f"-{suffix}"
+        slug = f"{base_slug[:120 - len(suffix_text)].rstrip('-')}{suffix_text}"
+        suffix += 1
 
 
 async def get_product(db: AsyncSession, product_id: int) -> Product:
@@ -138,11 +147,10 @@ async def create_category(
 ) -> Category:
     name = payload.name.strip()
     await ensure_name_available(db, Category, name)
-    await ensure_slug_available(db, Category, payload.slug)
+    slug = await generate_unique_slug(db, Category, name)
     category = Category(
         name=name,
-        slug=payload.slug,
-        description=payload.description,
+        slug=slug,
     )
     db.add(category)
     await db.commit()
@@ -161,10 +169,9 @@ async def update_category(
         raise HTTPException(status_code=404, detail="Категория не найдена")
     name = payload.name.strip()
     await ensure_name_available(db, Category, name, category_id)
-    await ensure_slug_available(db, Category, payload.slug, category_id)
+    slug = await generate_unique_slug(db, Category, name, category_id)
     category.name = name
-    category.slug = payload.slug
-    category.description = payload.description
+    category.slug = slug
     await db.commit()
     await db.refresh(category)
     return category
@@ -251,11 +258,10 @@ async def create_brand(
 ) -> Brand:
     name = payload.name.strip()
     await ensure_name_available(db, Brand, name)
-    await ensure_slug_available(db, Brand, payload.slug)
+    slug = await generate_unique_slug(db, Brand, name)
     brand = Brand(
         name=name,
-        slug=payload.slug,
-        description=payload.description,
+        slug=slug,
     )
     db.add(brand)
     await db.commit()
@@ -274,10 +280,9 @@ async def update_brand(
         raise HTTPException(status_code=404, detail="Бренд не найден")
     name = payload.name.strip()
     await ensure_name_available(db, Brand, name, brand_id)
-    await ensure_slug_available(db, Brand, payload.slug, brand_id)
+    slug = await generate_unique_slug(db, Brand, name, brand_id)
     brand.name = name
-    brand.slug = payload.slug
-    brand.description = payload.description
+    brand.slug = slug
     await db.commit()
     await db.refresh(brand)
     return brand
@@ -314,6 +319,51 @@ async def list_products(db: AsyncSession = Depends(get_db)) -> list[Product]:
     return list(result.all())
 
 
+@router.get("/popular-products", response_model=list[int])
+async def list_popular_product_ids(
+    db: AsyncSession = Depends(get_db),
+) -> list[int]:
+    result = await db.scalars(
+        select(Product.id)
+        .where(Product.popular_position.is_not(None))
+        .order_by(Product.popular_position)
+    )
+    return list(result.all())
+
+
+@router.put("/popular-products", response_model=list[int])
+async def update_popular_products(
+    payload: PopularProductsUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> list[int]:
+    if len(payload.product_ids) > MAX_POPULAR_PRODUCTS:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Можно выбрать не более {MAX_POPULAR_PRODUCTS} товаров",
+        )
+
+    if payload.product_ids:
+        existing_ids = set(
+            (
+                await db.scalars(
+                    select(Product.id).where(Product.id.in_(payload.product_ids))
+                )
+            ).all()
+        )
+        if existing_ids != set(payload.product_ids):
+            raise HTTPException(status_code=404, detail="Товар не найден")
+
+    await db.execute(update(Product).values(popular_position=None))
+    for position, product_id in enumerate(payload.product_ids, start=1):
+        await db.execute(
+            update(Product)
+            .where(Product.id == product_id)
+            .values(popular_position=position)
+        )
+    await db.commit()
+    return payload.product_ids
+
+
 @router.post(
     "/products",
     response_model=ProductResponse,
@@ -324,7 +374,8 @@ async def create_product(
     db: AsyncSession = Depends(get_db),
 ) -> Product:
     await ensure_product_relations(db, payload.category_id, payload.brand_id)
-    product = Product(**payload.model_dump())
+    slug = await generate_unique_slug(db, Product, payload.name)
+    product = Product(**payload.model_dump(), slug=slug)
     db.add(product)
     await db.commit()
     return await get_product(db, product.id)
@@ -346,6 +397,10 @@ async def update_product(
         raise HTTPException(
             status_code=422,
             detail="Обязательные поля товара не могут быть пустыми",
+        )
+    if "name" in updates:
+        updates["slug"] = await generate_unique_slug(
+            db, Product, updates["name"], product_id
         )
     if "category_id" in updates or "brand_id" in updates:
         await ensure_product_relations(

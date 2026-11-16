@@ -14,7 +14,7 @@ interface CatalogCardProps {
   } | null;
   price?: string;
   descriptionLines?: 3 | 4;
-  variant?: "category" | "brand";
+  variant?: "category" | "brand" | "product";
 }
 
 export default function CatalogCard({
@@ -35,6 +35,8 @@ export default function CatalogCard({
           ? "rounded-2xl border-white/10 bg-glass p-4 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10"
           : variant === "brand"
             ? "rounded-xl border-brand-violet/20 bg-linear-to-br from-brand-violet/15 via-white/5 to-brand-pink/10 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] hover:-translate-y-1 hover:border-brand-violet/40 hover:from-brand-violet/25 hover:to-brand-pink/15 hover:shadow-[0_12px_28px_rgba(0,0,0,0.25)]"
+            : variant === "product"
+              ? "rounded-2xl border-white/10 bg-glass p-3 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10 hover:shadow-[0_16px_32px_rgba(0,0,0,0.25)]"
             : "rounded-3xl border-white/10 bg-glass p-5 hover:-translate-y-1.5 hover:border-white/20 hover:bg-white/10 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]",
       )}
     >
@@ -46,7 +48,12 @@ export default function CatalogCard({
       )}
 
       {image && (
-        <div className="mb-4.5 flex aspect-square items-center justify-center overflow-hidden rounded-[18px] border border-white/10 bg-black/20 p-5">
+        <div
+          className={cn(
+            "mb-4.5 flex aspect-square items-center justify-center overflow-hidden rounded-[18px] border border-white/10 bg-black/20 p-5",
+            variant === "product" && "mb-3 aspect-[4/3] rounded-xl p-2.5",
+          )}
+        >
           <Image
             src={image.src}
             alt={image.alt}
@@ -58,14 +65,25 @@ export default function CatalogCard({
         </div>
       )}
 
-      <h3 className="mb-1 text-base font-semibold text-white">{title}</h3>
+      <h3
+        className={cn(
+          "mb-1 text-base font-semibold text-white",
+          variant === "product" && "line-clamp-2 text-sm",
+        )}
+      >
+        {title}
+      </h3>
 
       {description && (
         <p
           className={cn(
             "text-[13px] text-white/80",
             variant === "brand" && "text-xs text-white/70",
-            descriptionLines === 4 ? "line-clamp-4" : "line-clamp-3",
+            variant === "product"
+              ? "line-clamp-2 text-xs"
+              : descriptionLines === 4
+                ? "line-clamp-4"
+                : "line-clamp-3",
           )}
         >
           {description}
@@ -82,15 +100,28 @@ export default function CatalogCard({
       )}
 
       {price && (
-        <div className="mt-auto flex items-center justify-between pt-4">
-          <p className="text-xl font-bold tracking-tight text-white">
+        <div
+          className={cn(
+            "mt-auto flex items-center justify-between pt-4",
+            variant === "product" && "pt-3",
+          )}
+        >
+          <p
+            className={cn(
+              "text-xl font-bold tracking-tight text-white",
+              variant === "product" && "text-lg",
+            )}
+          >
             {Number(price).toLocaleString("ru-RU")} ₽
           </p>
           <span
             aria-hidden="true"
-            className="flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition-all duration-200 group-hover:rotate-45 group-hover:border-transparent group-hover:bg-linear-to-br group-hover:from-brand-violet group-hover:to-brand-pink"
+            className={cn(
+              "flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition-all duration-200 group-hover:rotate-45 group-hover:border-transparent group-hover:bg-linear-to-br group-hover:from-brand-violet group-hover:to-brand-pink",
+              variant === "product" && "size-9",
+            )}
           >
-            <ArrowRight className="size-4" />
+            <ArrowRight className={cn("size-4", variant === "product" && "size-3.5")} />
           </span>
         </div>
       )}

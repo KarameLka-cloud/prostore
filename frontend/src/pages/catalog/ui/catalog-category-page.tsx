@@ -91,7 +91,6 @@ export default function CatalogCategoryPage({ slug }: { slug: string }) {
                   href={`/catalog/${encodeURIComponent(slug)}/${encodeURIComponent(brand.slug)}`}
                   variant="brand"
                   title={brand.name}
-                  description={brand.description}
                 />
               </li>
             ))}

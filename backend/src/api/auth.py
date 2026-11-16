@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/login", response_model=UserResponse)
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)) -> User:
-    user = await db.scalar(select(User).where(User.name == payload.login))
+    user = await db.scalar(select(User).where(User.login == payload.login))
 
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(

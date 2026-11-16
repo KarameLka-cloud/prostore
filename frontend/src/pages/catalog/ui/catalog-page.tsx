@@ -55,7 +55,6 @@ export default function CatalogPage() {
                 href={`/catalog/${encodeURIComponent(category.slug)}`}
                 variant="category"
                 title={category.name}
-                description={category.description}
                 image={
                   category.image_path
                     ? { src: category.image_path, alt: category.name }

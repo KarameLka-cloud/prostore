@@ -18,6 +18,24 @@ async def list_public_categories(
     return list(result.all())
 
 
+@router.get("/popular-products", response_model=list[ProductResponse])
+async def list_public_popular_products(
+    db: AsyncSession = Depends(get_db),
+) -> list[Product]:
+    result = await db.scalars(
+        select(Product)
+        .options(
+            selectinload(Product.category),
+            selectinload(Product.brand),
+            selectinload(Product.images),
+        )
+        .where(Product.popular_position.is_not(None))
+        .order_by(Product.popular_position)
+        .limit(8)
+    )
+    return list(result.all())
+
+
 @router.get(
     "/categories/{category_id}/brands",
     response_model=list[BrandResponse],
@@ -61,9 +79,9 @@ async def list_public_category_products(
     return list(result.all())
 
 
-@router.get("/products/{product_id}", response_model=ProductResponse)
+@router.get("/products/{product_slug}", response_model=ProductResponse)
 async def get_public_product(
-    product_id: int,
+    product_slug: str,
     db: AsyncSession = Depends(get_db),
 ) -> Product:
     product = await db.scalar(
@@ -73,8 +91,18 @@ async def get_public_product(
             selectinload(Product.brand),
             selectinload(Product.images),
         )
-        .where(Product.id == product_id)
+        .where(Product.slug == product_slug)
     )
+    if product is None and product_slug.isdecimal() and len(product_slug) <= 19:
+        product = await db.scalar(
+            select(Product)
+            .options(
+                selectinload(Product.category),
+                selectinload(Product.brand),
+                selectinload(Product.images),
+            )
+            .where(Product.id == int(product_slug))
+        )
     if product is None:
         raise HTTPException(status_code=404, detail="Товар не найден")
     return product
