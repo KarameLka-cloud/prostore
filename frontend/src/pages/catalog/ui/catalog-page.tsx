@@ -7,7 +7,6 @@ import {
   type CatalogCategory,
 } from "@/features/catalog-management/api";
 import { getErrorMessage } from "@/shared/lib/errors";
-import PageHeader from "@/shared/ui/custom/page-header";
 import PageSection from "@/shared/ui/custom/page-section";
 import QueryState from "@/shared/ui/custom/query-state";
 import CatalogCard from "./catalog-card";
@@ -40,8 +39,6 @@ export default function CatalogPage() {
 
   return (
     <PageSection>
-      <PageHeader>Каталог</PageHeader>
-
       <QueryState
         loading={loading}
         loadingText="Загрузка категорий..."

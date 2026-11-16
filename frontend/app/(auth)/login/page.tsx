@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
 
 import { AuthShell, loginAction } from "@/features/auth";
 import InputField from "@/shared/ui/custom/input-field";
@@ -36,14 +35,6 @@ export default function LoginPage() {
           label="Пароль"
           placeholder="••••••••"
           required
-          hint={
-            <Link
-              href="/forgot-password"
-              className="text-xs text-white/80 underline-offset-4 hover:text-white hover:underline"
-            >
-              Забыли пароль?
-            </Link>
-          }
         />
 
         {state.error && (

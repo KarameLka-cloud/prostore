@@ -8,10 +8,8 @@ import {
   type CatalogCategory,
 } from "@/features/catalog-management/api";
 import { getErrorMessage } from "@/shared/lib/errors";
-import PageHeader from "@/shared/ui/custom/page-header";
 import PageSection from "@/shared/ui/custom/page-section";
 import QueryState from "@/shared/ui/custom/query-state";
-import SectionTitle from "@/shared/ui/custom/section-title";
 import CatalogBreadcrumbs from "./catalog-breadcrumbs";
 import CatalogCard from "./catalog-card";
 
@@ -74,15 +72,11 @@ export default function CatalogCategoryPage({ slug }: { slug: string }) {
           { label: category?.name ?? "Категория" },
         ]}
       />
-      <PageHeader className="mt-6">{category?.name ?? "Категория"}</PageHeader>
-
       <QueryState
         loading={loading}
         loadingText="Загрузка категории..."
         error={categoryError}
       >
-        <SectionTitle className="mb-5 text-left">Выберите бренд</SectionTitle>
-
         <QueryState
           loading={loading}
           loadingText="Загрузка брендов..."

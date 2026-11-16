@@ -88,8 +88,6 @@ export default function CatalogBrandPage({
           { label: brand?.name ?? brandSlug },
         ]}
       />
-      <PageHeader className="mt-6">{brand?.name ?? "Бренд"}</PageHeader>
-
       <QueryState
         loading={loading}
         loadingText="Загрузка товаров..."

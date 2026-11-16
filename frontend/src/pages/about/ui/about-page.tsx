@@ -51,7 +51,6 @@ export default function AboutPage() {
           <h2 className="text-xl font-bold text-white">
             ProStore — это не просто магазин приставок и техники
           </h2>
-          <IconBadge icon={Sparkles} />
         </div>
         <p className="mt-4 text-[17px] leading-relaxed text-white/80">
           Мы любим технику сами, поэтому прекрасно понимаем, что покупка новой
