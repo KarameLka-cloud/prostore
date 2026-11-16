@@ -134,9 +134,6 @@ export default function AdminPopularProductsPage() {
     <section className="mx-auto w-full max-w-7xl space-y-6 p-2 text-foreground sm:p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">
-            Каталог / Популярные товары
-          </p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight">
             Популярные товары
           </h1>

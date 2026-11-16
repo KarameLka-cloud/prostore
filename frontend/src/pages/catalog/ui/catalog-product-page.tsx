@@ -88,8 +88,8 @@ export default function CatalogProductPage({
       >
         {product && (
           <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-8">
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-3 backdrop-blur-xl sm:p-5">
-                <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+              <div className="rounded-3xl border border-white/10 bg-white[0.03 p-3 backdrop-blur-xl sm:p-5">
+                <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                   {product.images.length > 0 ? (
                     <Image
                       src={product.images[activeImageIndex].path}

@@ -99,7 +99,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Управление</SidebarGroupLabel>
             <SidebarMenu>
               {items.map((item) => (
                 <Collapsible

@@ -51,11 +51,39 @@ const fieldClass =
   "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50";
 
 const transliteration: Record<string, string> = {
-  а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo",
-  ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m",
-  н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u",
-  ф: "f", х: "h", ц: "ts", ч: "ch", ш: "sh", щ: "shch",
-  ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya",
+  а: "a",
+  б: "b",
+  в: "v",
+  г: "g",
+  д: "d",
+  е: "e",
+  ё: "yo",
+  ж: "zh",
+  з: "z",
+  и: "i",
+  й: "y",
+  к: "k",
+  л: "l",
+  м: "m",
+  н: "n",
+  о: "o",
+  п: "p",
+  р: "r",
+  с: "s",
+  т: "t",
+  у: "u",
+  ф: "f",
+  х: "h",
+  ц: "ts",
+  ч: "ch",
+  ш: "sh",
+  щ: "shch",
+  ъ: "",
+  ы: "y",
+  ь: "",
+  э: "e",
+  ю: "yu",
+  я: "ya",
 };
 
 function makeSlug(value: string) {
@@ -205,7 +233,9 @@ export default function AdminCatalogPage({
 
   function editProduct(product: CatalogProduct) {
     setEditingProduct(product.id);
-    setProductImages([...product.images].sort((left, right) => left.id - right.id));
+    setProductImages(
+      [...product.images].sort((left, right) => left.id - right.id),
+    );
     setProductForm({
       name: product.name,
       description: product.description ?? "",
@@ -316,9 +346,7 @@ export default function AdminCatalogPage({
       await refresh();
     } catch (cause) {
       setError(
-        cause instanceof Error
-          ? cause.message
-          : "Не удалось сохранить запись",
+        cause instanceof Error ? cause.message : "Не удалось сохранить запись",
       );
     } finally {
       setSaving(false);
@@ -376,11 +404,9 @@ export default function AdminCatalogPage({
     <section className="mx-auto w-full max-w-7xl space-y-6 p-2 text-foreground sm:p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">Каталог / {title}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{title}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Управляйте записями каталога и их отображением в магазине.
-          </p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
+            {title}
+          </h1>
         </div>
         <Button onClick={openCreateModal} className="w-full sm:w-auto">
           <Plus data-icon="inline-start" />
@@ -595,9 +621,7 @@ export default function AdminCatalogPage({
                   accept="image/jpeg,image/png,image/webp"
                   multiple
                   onChange={(event) => {
-                    const selectedFiles = Array.from(
-                      event.target.files ?? [],
-                    );
+                    const selectedFiles = Array.from(event.target.files ?? []);
                     if (selectedFiles.length > 10) {
                       setError("Можно выбрать не более 10 изображений за раз");
                       event.target.value = "";
@@ -615,40 +639,40 @@ export default function AdminCatalogPage({
                 )}
               </label>
               {editingProduct !== null && (
-                  <div className="space-y-2">
-                    <p className="text-sm">Текущие изображения</p>
-                    {productImages.length > 0 ? (
-                      <div className="flex flex-wrap gap-3">
-                        {productImages.map((image) => (
-                          <div key={image.id} className="group relative">
-                            <Image
-                              src={image.path}
-                              alt=""
-                              width={72}
-                              height={72}
-                              unoptimized
-                              className="size-[72px] rounded-md border object-cover"
-                            />
-                            <button
-                              type="button"
-                              aria-label={`Удалить изображение товара ${image.id}`}
-                              disabled={saving}
-                              className="absolute -right-2 -top-2 rounded-full border bg-background p-1 text-muted-foreground shadow-sm transition-colors hover:bg-destructive hover:text-white disabled:pointer-events-none disabled:opacity-50"
-                              onClick={() =>
-                                void removeImage(editingProduct, image.id)
-                              }
-                            >
-                              <X className="size-3.5" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-muted-foreground">
-                        У товара пока нет изображений.
-                      </p>
-                    )}
-                  </div>
+                <div className="space-y-2">
+                  <p className="text-sm">Текущие изображения</p>
+                  {productImages.length > 0 ? (
+                    <div className="flex flex-wrap gap-3">
+                      {productImages.map((image) => (
+                        <div key={image.id} className="group relative">
+                          <Image
+                            src={image.path}
+                            alt=""
+                            width={72}
+                            height={72}
+                            unoptimized
+                            className="size-[72px] rounded-md border object-cover"
+                          />
+                          <button
+                            type="button"
+                            aria-label={`Удалить изображение товара ${image.id}`}
+                            disabled={saving}
+                            className="absolute -right-2 -top-2 rounded-full border bg-background p-1 text-muted-foreground shadow-sm transition-colors hover:bg-destructive hover:text-white disabled:pointer-events-none disabled:opacity-50"
+                            onClick={() =>
+                              void removeImage(editingProduct, image.id)
+                            }
+                          >
+                            <X className="size-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      У товара пока нет изображений.
+                    </p>
+                  )}
+                </div>
               )}
               {(categories.length === 0 || brands.length === 0) && (
                 <p className="text-sm text-amber-700">
@@ -657,7 +681,9 @@ export default function AdminCatalogPage({
               )}
               <ModalActions
                 saving={saving}
-                submitLabel={editingProduct ? "Сохранить товар" : "Создать товар"}
+                submitLabel={
+                  editingProduct ? "Сохранить товар" : "Создать товар"
+                }
                 disabled={categories.length === 0 || brands.length === 0}
                 onCancel={closeModal}
               />
@@ -671,8 +697,9 @@ export default function AdminCatalogPage({
               imagePath={
                 editingCategory === null
                   ? null
-                  : categories.find((category) => category.id === editingCategory)
-                      ?.image_path ?? null
+                  : (categories.find(
+                      (category) => category.id === editingCategory,
+                    )?.image_path ?? null)
               }
               saving={saving}
               editing={editingCategory !== null}
@@ -695,8 +722,8 @@ export default function AdminCatalogPage({
               imagePath={
                 editingBrand === null
                   ? null
-                  : brands.find((brand) => brand.id === editingBrand)
-                      ?.image_path ?? null
+                  : (brands.find((brand) => brand.id === editingBrand)
+                      ?.image_path ?? null)
               }
               saving={saving}
               editing={editingBrand !== null}
@@ -833,7 +860,11 @@ function NamedTable<T extends CatalogCategory | CatalogBrand>({
   onDelete: (item: T) => void;
 }) {
   if (items.length === 0) {
-    return <EmptyState message={`${kind === "categories" ? "Категории" : "Бренды"} не найдены.`} />;
+    return (
+      <EmptyState
+        message={`${kind === "categories" ? "Категории" : "Бренды"} не найдены.`}
+      />
+    );
   }
   return (
     <div className="overflow-x-auto">
@@ -950,7 +981,12 @@ function ModalActions({
 }) {
   return (
     <div className="flex justify-end gap-2 border-t pt-4">
-      <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>
+      <Button
+        type="button"
+        variant="outline"
+        disabled={saving}
+        onClick={onCancel}
+      >
         Отмена
       </Button>
       <Button type="submit" disabled={saving || disabled}>
@@ -1003,10 +1039,7 @@ function NamedForm({
       </label>
       <label className="block space-y-1.5 text-sm">
         <span>Slug (формируется автоматически)</span>
-        <Input
-          readOnly
-          value={slug}
-        />
+        <Input readOnly value={slug} />
         <span className="block text-xs text-muted-foreground">
           Ссылка: /catalog/{slug || "slug"}
         </span>
@@ -1065,7 +1098,10 @@ function NamedForm({
   );
 }
 
-function pluralize(section: "products" | "categories" | "brands", count: number) {
+function pluralize(
+  section: "products" | "categories" | "brands",
+  count: number,
+) {
   if (section === "products") {
     const lastTwo = count % 100;
     const last = count % 10;
