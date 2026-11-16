@@ -1,3 +1,5 @@
+import { LoaderCircle } from "lucide-react";
+
 import StatusMessage from "@/shared/ui/custom/status-message";
 
 interface QueryStateProps {
@@ -18,7 +20,19 @@ export default function QueryState({
   children,
 }: QueryStateProps) {
   if (loading) {
-    return <p className="text-sm text-white/80">{loadingText}</p>;
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        className="my-12 flex flex-col items-center justify-center gap-3 text-sm text-white/80"
+      >
+        <LoaderCircle
+          aria-hidden="true"
+          className="size-8 animate-spin text-brand-violet"
+        />
+        <span>{loadingText}</span>
+      </div>
+    );
   }
 
   if (error) {

@@ -4,11 +4,12 @@ import GlassCard from "@/shared/ui/custom/glass-card";
 interface AuthShellProps {
   title: string;
   description: string;
-  footerText: string;
-  footerLink: {
+  footerText?: string;
+  footerLink?: {
     href: string;
     label: string;
   };
+  belowCard?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -17,6 +18,7 @@ export default function AuthShell({
   description,
   footerText,
   footerLink,
+  belowCard,
   children,
 }: AuthShellProps) {
   return (
@@ -30,15 +32,19 @@ export default function AuthShell({
 
       <GlassCard overlay="glow">{children}</GlassCard>
 
-      <p className="mt-8 text-center text-sm text-white/80">
-        {footerText}{" "}
-        <Link
-          href={footerLink.href}
-          className="font-medium text-white underline-offset-4 hover:underline"
-        >
-          {footerLink.label}
-        </Link>
-      </p>
+      {belowCard}
+
+      {footerText && footerLink && (
+        <p className="mt-8 text-center text-sm text-white/80">
+          {footerText}{" "}
+          <Link
+            href={footerLink.href}
+            className="font-medium text-white underline-offset-4 hover:underline"
+          >
+            {footerLink.label}
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

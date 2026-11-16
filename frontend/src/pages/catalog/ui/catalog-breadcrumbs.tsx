@@ -12,7 +12,7 @@ export default function CatalogBreadcrumbs({ items }: CatalogBreadcrumbsProps) {
   return (
     <nav
       aria-label="Навигация каталога"
-      className="mt-8 flex flex-wrap items-center gap-2 text-sm text-white/80"
+      className="mt-8 mb-6 flex flex-wrap items-center gap-2 text-sm text-white/70"
     >
       {items.map((item, index) => (
         <Fragment key={`${item.label}-${index}`}>

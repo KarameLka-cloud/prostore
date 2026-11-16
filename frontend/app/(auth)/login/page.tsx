@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useActionState } from "react";
 
 import { AuthShell, loginAction } from "@/features/auth";
@@ -13,8 +15,15 @@ export default function LoginPage() {
     <AuthShell
       title="Вход в аккаунт"
       description="Введите данные для входа в свой аккаунт"
-      footerText="Нет аккаунта?"
-      footerLink={{ href: "/registration", label: "Зарегистрироваться" }}
+      belowCard={
+        <Link
+          href="/"
+          className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white/80 transition hover:border-white/20 hover:bg-white/10 hover:text-white"
+        >
+          <ArrowLeft aria-hidden="true" className="size-4" />
+          Вернуться на сайт
+        </Link>
+      }
     >
       <form action={formAction} className="space-y-5">
         <InputField

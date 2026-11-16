@@ -9,6 +9,7 @@ import {
 import { getErrorMessage } from "@/shared/lib/errors";
 import PageSection from "@/shared/ui/custom/page-section";
 import QueryState from "@/shared/ui/custom/query-state";
+import CatalogBreadcrumbs from "./catalog-breadcrumbs";
 import CatalogCard from "./catalog-card";
 
 export default function CatalogPage() {
@@ -39,6 +40,7 @@ export default function CatalogPage() {
 
   return (
     <PageSection>
+      <CatalogBreadcrumbs items={[{ label: "Каталог" }]} />
       <QueryState
         loading={loading}
         loadingText="Загрузка категорий..."
@@ -46,11 +48,12 @@ export default function CatalogPage() {
         empty={categories.length === 0}
         emptyText="Категории пока не добавлены."
       >
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {categories.map((category) => (
             <li key={category.id}>
               <CatalogCard
                 href={`/catalog/${encodeURIComponent(category.slug)}`}
+                variant="category"
                 title={category.name}
                 description={category.description}
                 image={

@@ -9,7 +9,6 @@ import {
   type CatalogProduct,
 } from "@/features/catalog-management/api";
 import { getErrorMessage } from "@/shared/lib/errors";
-import PageHeader from "@/shared/ui/custom/page-header";
 import PageSection from "@/shared/ui/custom/page-section";
 import QueryState from "@/shared/ui/custom/query-state";
 import CatalogBreadcrumbs from "./catalog-breadcrumbs";
