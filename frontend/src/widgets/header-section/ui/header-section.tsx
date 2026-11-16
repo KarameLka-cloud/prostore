@@ -39,8 +39,8 @@ export default function HeaderSection({ userName }: { userName?: string }) {
             <Image
               src="/images/logo.png"
               alt={siteConfig.name}
-              width={720}
-              height={389}
+              width={1626}
+              height={967}
               loading="eager"
               className="h-10 w-auto object-contain"
             />

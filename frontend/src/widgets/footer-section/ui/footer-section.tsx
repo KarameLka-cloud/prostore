@@ -16,8 +16,8 @@ export default async function FooterSection() {
             <Image
               src="/images/logo.png"
               alt={siteConfig.name}
-              width={720}
-              height={389}
+              width={1626}
+              height={967}
               className="h-auto w-full object-contain"
             />
           </Link>
