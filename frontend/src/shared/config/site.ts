@@ -8,6 +8,7 @@ export interface SiteContact {
   phone: string;
   phoneCity: string;
   phoneHref: string;
+  phoneCityHref: string;
   hours: string;
   telegram: string;
   whatsapp: string;
@@ -44,6 +45,7 @@ export const contactConfig: SiteContact = {
   phone: "+7 (964) 270-2242",
   phoneCity: "+7 (3952) 922-242",
   phoneHref: "tel:+79642702242",
+  phoneCityHref: "tel:+73952922242",
   hours: "Пн–Вс: 11:00–20:00",
   telegram: "https://t.me/ProstoRetail922242",
   whatsapp: "https://wa.me/79642702242",

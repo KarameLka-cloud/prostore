@@ -18,7 +18,7 @@ const CONTACT_DETAILS = [
     label: "Телефон",
     values: [
       { value: contactConfig.phone, href: contactConfig.phoneHref },
-      { value: contactConfig.phoneCity, href: "tel:+73952922242" },
+      { value: contactConfig.phoneCity, href: contactConfig.phoneCityHref },
     ],
   },
   {
