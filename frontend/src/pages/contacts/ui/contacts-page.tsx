@@ -11,19 +11,20 @@ const CONTACT_DETAILS = [
   {
     icon: MapPin,
     label: "Адрес",
-    value: contactConfig.address,
-    href: contactsConfig.mapUrl,
+    values: [{ value: contactConfig.address, href: contactsConfig.mapUrl }],
   },
   {
     icon: Phone,
     label: "Телефон",
-    value: contactConfig.phone,
-    href: contactConfig.phoneHref,
+    values: [
+      { value: contactConfig.phone, href: contactConfig.phoneHref },
+      { value: contactConfig.phoneCity, href: "tel:+73952922242" },
+    ],
   },
   {
     icon: Clock,
     label: "Время работы",
-    value: contactConfig.hours,
+    values: [{ value: contactConfig.hours }],
   },
 ];
 
@@ -82,19 +83,20 @@ export default function ContactsPage() {
             contentClassName="lg:flex lg:h-full lg:flex-col lg:justify-center"
           >
             <ul className="divide-y divide-white/10">
-              {CONTACT_DETAILS.map(({ icon, label, value, href }) => {
-                const isExternal = href?.startsWith("http");
+              {CONTACT_DETAILS.map(({ icon, label, values }) => (
+                <li key={label} className="py-4 first:pt-0 last:pb-0">
+                  <div className="flex items-center gap-4">
+                    <IconBadge icon={icon} size="sm" variant="outline" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/80">
+                        {label}
+                      </p>
+                      {values.map(({ value, href }) => {
+                        const isExternal = href?.startsWith("http");
 
-                return (
-                  <li key={label} className="py-4 first:pt-0 last:pb-0">
-                    <div className="flex items-center gap-4">
-                      <IconBadge icon={icon} size="sm" variant="outline" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/80">
-                          {label}
-                        </p>
-                        {href ? (
+                        return href ? (
                           <a
+                            key={value}
                             href={href}
                             target={isExternal ? "_blank" : undefined}
                             rel={isExternal ? "noopener noreferrer" : undefined}
@@ -103,15 +105,18 @@ export default function ContactsPage() {
                             {value}
                           </a>
                         ) : (
-                          <p className="mt-1 text-[15px] font-medium text-white">
+                          <p
+                            key={value}
+                            className="mt-1 text-[15px] font-medium text-white"
+                          >
                             {value}
                           </p>
-                        )}
-                      </div>
+                        );
+                      })}
                     </div>
-                  </li>
-                );
-              })}
+                  </div>
+                </li>
+              ))}
             </ul>
           </GlassCard>
 

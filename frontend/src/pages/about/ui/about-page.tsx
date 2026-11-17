@@ -1,4 +1,5 @@
-import { ImagePlus, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { Sparkles } from "lucide-react";
 
 import GlassCard from "@/shared/ui/custom/glass-card";
 import GradientText from "@/shared/ui/custom/gradient-text";
@@ -11,39 +12,30 @@ export default function AboutPage() {
     <PageSection>
       <PageHeader>О нас</PageHeader>
 
-      <div className="mx-auto mb-16 grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-        <GlassCard overlay="glow" padding="lg">
+      <GlassCard
+        overlay="glow"
+        padding="lg"
+        className="mx-auto mb-16 max-w-5xl"
+      >
+        <div>
           <p className="text-[17px] leading-relaxed text-white/80">
             Привет! Я <span className="font-semibold text-white">Андрей</span> —
             основатель ProStore. Если вы дочитали до этого раздела, значит, вам
             действительно интересно, кто стоит за магазином и у кого вы
             покупаете технику. Поэтому расскажу немного о нас.
           </p>
-        </GlassCard>
-
-        <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
-          <div
-            aria-hidden="true"
-            className="absolute -inset-2 rounded-[28px] bg-linear-to-br from-brand-violet/25 to-brand-pink/25 opacity-70 blur-2xl"
-          />
-
-          <GlassCard padding="none" className="p-3">
-            <div className="flex aspect-5/5 flex-col items-center justify-center gap-4 rounded-[18px] border border-dashed border-white/20 bg-linear-to-br from-white/5 via-transparent to-white/5 px-6 text-center">
-              <div className="flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
-                <ImagePlus className="size-6 text-white/60" />
-              </div>
-              <div>
-                <p className="text-[15px] font-medium text-white">
-                  Фото основателя
-                </p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-white/80">
-                  Здесь скоро появится фотография
-                </p>
-              </div>
-            </div>
-          </GlassCard>
         </div>
-      </div>
+        <div className="relative mt-6 aspect-3/2 overflow-hidden rounded-[18px] border border-white/10">
+          <Image
+            src="/images/pages/about.png"
+            alt="Андрей и ассортимент техники ProStore"
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            className="object-cover"
+          />
+        </div>
+      </GlassCard>
 
       <GlassCard overlay="glow" padding="lg" className="mx-auto mb-16">
         <div className="flex justify-center items-center gap-3">

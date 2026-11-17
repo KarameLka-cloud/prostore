@@ -8,6 +8,7 @@ import {
   UserCheck,
 } from "lucide-react";
 
+import { contactConfig } from "@/shared/config/site";
 import GlassCard from "@/shared/ui/custom/glass-card";
 import IconBadge from "@/shared/ui/custom/icon-badge";
 import PageHeader from "@/shared/ui/custom/page-header";
@@ -101,11 +102,19 @@ export default function CreditPage() {
         padding="sm"
         className="mx-auto max-w-3xl lg:p-8"
       >
-        <div className="flex justify-center items-start gap-3">
-          <Info className="mt-0.5 size-5 shrink-0 text-white/80" />
-          <p className="text-[15px] leading-relaxed text-white/80">
-            Точную сумму для оформления Вам скажут менеджеры
-          </p>
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="flex items-start justify-center gap-3">
+            <Info className="mt-0.5 size-5 shrink-0 text-white/80" />
+            <p className="text-[15px] leading-relaxed text-white/80">
+              Точную сумму для оформления Вам скажут менеджеры
+            </p>
+          </div>
+          <a
+            href={contactConfig.phoneHref}
+            className="text-xl font-bold text-white transition-colors hover:text-brand-pink"
+          >
+            {contactConfig.phone}
+          </a>
         </div>
       </GlassCard>
     </PageSection>

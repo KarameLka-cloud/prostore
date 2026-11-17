@@ -6,6 +6,7 @@ export interface SiteConfig {
 export interface SiteContact {
   address: string;
   phone: string;
+  phoneCity: string;
   phoneHref: string;
   hours: string;
   telegram: string;
@@ -40,11 +41,12 @@ export const siteConfig: SiteConfig = {
 
 export const contactConfig: SiteContact = {
   address: "г. Иркутск, ул. Иркутской 30-й Дивизии, 55",
-  phone: "+7 (000) 000-00-00",
-  phoneHref: "tel:+70000000000",
-  hours: "Пн–Вс: 10:00–20:00",
-  telegram: "https://t.me/prostore",
-  whatsapp: "https://wa.me/70000000000",
+  phone: "+7 (964) 270-2242",
+  phoneCity: "+7 (3952) 922-242",
+  phoneHref: "tel:+79642702242",
+  hours: "Пн–Вс: 11:00–20:00",
+  telegram: "https://t.me/ProstoRetail922242",
+  whatsapp: "https://wa.me/79642702242",
 };
 
 export const contactsConfig: ContactsConfig = {
