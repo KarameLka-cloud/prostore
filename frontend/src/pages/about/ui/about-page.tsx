@@ -15,7 +15,7 @@ export default function AboutPage() {
       <GlassCard
         overlay="glow"
         padding="lg"
-        className="mx-auto mb-16 max-w-5xl"
+        className="mx-auto mb-16 w-full"
       >
         <div>
           <p className="text-[17px] leading-relaxed text-white/80">
@@ -25,14 +25,15 @@ export default function AboutPage() {
             покупаете технику. Поэтому расскажу немного о нас.
           </p>
         </div>
-        <div className="relative mt-6 aspect-3/2 overflow-hidden rounded-[18px] border border-white/10">
+        <div className="mt-6 overflow-hidden rounded-[18px] border border-white/10">
           <Image
             src="/images/pages/about.png"
             alt="Андрей и ассортимент техники ProStore"
-            fill
+            width={1365}
+            height={910}
             priority
-            sizes="(max-width: 1024px) 100vw, 1024px"
-            className="object-cover"
+            sizes="100vw"
+            className="block h-auto w-full"
           />
         </div>
       </GlassCard>
