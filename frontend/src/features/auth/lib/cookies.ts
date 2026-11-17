@@ -15,11 +15,12 @@ export async function getSession(): Promise<SessionPayload | null> {
 }
 
 export async function createSession(
-  user: { id: number; login: string },
+  user: { id: number; login: string; name: string },
 ): Promise<void> {
   const token = createSessionToken({
     userId: user.id,
     login: user.login,
+    name: user.name,
   });
   const cookieStore = await cookies();
 

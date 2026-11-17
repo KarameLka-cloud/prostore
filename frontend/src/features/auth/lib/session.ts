@@ -15,6 +15,7 @@ if (!process.env.AUTH_SECRET) {
 export interface SessionPayload {
   userId: number;
   login: string;
+  name?: string;
   exp: number;
 }
 
@@ -68,7 +69,8 @@ export function verifySessionToken(
       typeof payload.exp !== "number" ||
       payload.exp * 1000 <= Date.now() ||
       typeof payload.userId !== "number" ||
-      typeof payload.login !== "string"
+      typeof payload.login !== "string" ||
+      (payload.name !== undefined && typeof payload.name !== "string")
     ) {
       return null;
     }

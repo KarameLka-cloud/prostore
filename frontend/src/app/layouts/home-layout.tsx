@@ -9,7 +9,7 @@ async function SessionHeader() {
   await connection();
   const session = await getSession();
 
-  return <HeaderSection userName={session?.login} />;
+  return <HeaderSection userName={session?.name ?? session?.login} />;
 }
 
 export default function HomeLayout({
