@@ -24,7 +24,7 @@ const CONTACT_DETAILS = [
   {
     icon: Clock,
     label: "Время работы",
-    values: [{ value: contactConfig.hours }],
+    values: [{ value: contactConfig.hours, href: undefined }],
   },
 ];
 
