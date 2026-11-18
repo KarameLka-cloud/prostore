@@ -32,6 +32,8 @@ import { Avatar, AvatarFallback } from "@/shared/ui/shadcn/avatar";
 
 import { ChevronRight, LogOut, Package, Users } from "lucide-react";
 
+export const instant = false;
+
 const items = [
   {
     title: "Каталог",

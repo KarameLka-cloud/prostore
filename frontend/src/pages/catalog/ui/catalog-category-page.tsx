@@ -1,69 +1,27 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-import {
-  catalogPublicRequest,
-  type CatalogBrand,
-  type CatalogCategory,
+import type {
+  CatalogBrand,
+  CatalogCategory,
 } from "@/features/catalog-management/api";
-import { getErrorMessage } from "@/shared/lib/errors";
 import PageSection from "@/shared/ui/custom/page-section";
 import QueryState from "@/shared/ui/custom/query-state";
 import CatalogBreadcrumbs from "./catalog-breadcrumbs";
 import CatalogCard from "./catalog-card";
 
-export default function CatalogCategoryPage({ slug }: { slug: string }) {
-  const [category, setCategory] = useState<CatalogCategory | null>(null);
-  const [brands, setBrands] = useState<CatalogBrand[]>([]);
-  const [categoryError, setCategoryError] = useState("");
-  const [brandsError, setBrandsError] = useState("");
-  const [loading, setLoading] = useState(true);
+interface CatalogCategoryPageProps {
+  slug: string;
+  category: CatalogCategory | null;
+  brands: CatalogBrand[];
+  categoryError?: string;
+  brandsError?: string;
+}
 
-  useEffect(() => {
-    let active = true;
-
-    async function loadCategory() {
-      try {
-        const categories =
-          await catalogPublicRequest<CatalogCategory[]>("categories");
-        const foundCategory = categories.find((item) => item.slug === slug);
-        if (!foundCategory) {
-          if (active) setCategoryError("Категория не найдена");
-          return;
-        }
-        if (active) setCategory(foundCategory);
-
-        try {
-          const categoryBrands = await catalogPublicRequest<CatalogBrand[]>(
-            `categories/${foundCategory.id}/brands`,
-          );
-          if (active) setBrands(categoryBrands);
-        } catch (cause: unknown) {
-          if (active) {
-            setBrandsError(
-              getErrorMessage(cause, "Не удалось загрузить бренды"),
-            );
-          }
-        }
-      } catch (cause: unknown) {
-        if (active) {
-          setCategoryError(
-            getErrorMessage(cause, "Не удалось загрузить категорию"),
-          );
-        }
-      } finally {
-        if (active) setLoading(false);
-      }
-    }
-
-    void loadCategory();
-
-    return () => {
-      active = false;
-    };
-  }, [slug]);
-
+export default function CatalogCategoryPage({
+  slug,
+  category,
+  brands,
+  categoryError,
+  brandsError,
+}: CatalogCategoryPageProps) {
   return (
     <PageSection>
       <CatalogBreadcrumbs
@@ -73,12 +31,10 @@ export default function CatalogCategoryPage({ slug }: { slug: string }) {
         ]}
       />
       <QueryState
-        loading={loading}
         loadingText="Загрузка категории..."
         error={categoryError}
       >
         <QueryState
-          loading={loading}
           loadingText="Загрузка брендов..."
           error={brandsError}
           empty={brands.length === 0}

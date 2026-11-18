@@ -14,6 +14,13 @@ export async function getSession(): Promise<SessionPayload | null> {
   return verifySessionToken(cookieStore.get(SESSION_COOKIE)?.value);
 }
 
+export async function getSessionToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE)?.value;
+
+  return verifySessionToken(token) ? (token ?? null) : null;
+}
+
 export async function createSession(
   user: { id: number; login: string; name: string },
 ): Promise<void> {

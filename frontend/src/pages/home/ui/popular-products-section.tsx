@@ -1,50 +1,22 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-import {
-  catalogPublicRequest,
-  type CatalogProduct,
-} from "@/features/catalog-management/api";
-import { getErrorMessage } from "@/shared/lib/errors";
+import type { CatalogProduct } from "@/features/catalog-management/api";
 import PageSection from "@/shared/ui/custom/page-section";
 import QueryState from "@/shared/ui/custom/query-state";
 import SectionTitle from "@/shared/ui/custom/section-title";
 import CatalogCard from "@/pages/catalog/ui/catalog-card";
 
-export default function PopularProductsSection() {
-  const [products, setProducts] = useState<CatalogProduct[]>([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+interface PopularProductsSectionProps {
+  products: CatalogProduct[];
+  error?: string;
+}
 
-  useEffect(() => {
-    let active = true;
-
-    catalogPublicRequest<CatalogProduct[]>("popular-products")
-      .then((data) => {
-        if (active) setProducts(data);
-      })
-      .catch((cause: unknown) => {
-        if (active) {
-          setError(
-            getErrorMessage(cause, "Не удалось загрузить популярные товары"),
-          );
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
+export default function PopularProductsSection({
+  products,
+  error,
+}: PopularProductsSectionProps) {
   return (
     <PageSection className="pt-8 sm:pt-12">
       <SectionTitle>Популярные товары</SectionTitle>
       <QueryState
-        loading={loading}
         loadingText="Загрузка популярных товаров..."
         error={error}
         empty={products.length === 0}

@@ -1,48 +1,19 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-import {
-  catalogPublicRequest,
-  type CatalogCategory,
-} from "@/features/catalog-management/api";
-import { getErrorMessage } from "@/shared/lib/errors";
+import type { CatalogCategory } from "@/features/catalog-management/api";
 import PageSection from "@/shared/ui/custom/page-section";
 import QueryState from "@/shared/ui/custom/query-state";
 import CatalogBreadcrumbs from "./catalog-breadcrumbs";
 import CatalogCard from "./catalog-card";
 
-export default function CatalogPage() {
-  const [categories, setCategories] = useState<CatalogCategory[]>([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+interface CatalogPageProps {
+  categories: CatalogCategory[];
+  error?: string;
+}
 
-  useEffect(() => {
-    let active = true;
-
-    catalogPublicRequest<CatalogCategory[]>("categories")
-      .then((data) => {
-        if (active) setCategories(data);
-      })
-      .catch((cause: unknown) => {
-        if (active) {
-          setError(getErrorMessage(cause, "Не удалось загрузить категории"));
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
+export default function CatalogPage({ categories, error }: CatalogPageProps) {
   return (
     <PageSection>
       <CatalogBreadcrumbs items={[{ label: "Каталог" }]} />
       <QueryState
-        loading={loading}
         loadingText="Загрузка категорий..."
         error={error}
         empty={categories.length === 0}

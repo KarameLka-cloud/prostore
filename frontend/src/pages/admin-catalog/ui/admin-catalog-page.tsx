@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -33,12 +33,24 @@ import {
 } from "lucide-react";
 
 import {
-  catalogRequest,
-  type CatalogBrand,
-  type CatalogCategory,
-  type CatalogImage,
-  type CatalogProduct,
+  deleteCatalogItemAction,
+  deleteProductImageAction,
+  loadCatalogAction,
+  saveCatalogItemAction,
+  saveCatalogOrderAction,
+  saveProductAction,
+  uploadCatalogImageAction,
+  uploadProductImagesAction,
+} from "@/features/catalog-management/actions";
+import type {
+  AdminCatalogData,
+  CatalogBrand,
+  CatalogCategory,
+  CatalogImage,
+  CatalogProduct,
+  CatalogProductPayload,
 } from "@/features/catalog-management/api";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
   Dialog,
@@ -120,12 +132,20 @@ function formatPrice(price: string) {
 
 export default function AdminCatalogPage({
   section,
+  initialData,
+  initialError,
 }: {
   section: "products" | "categories" | "brands";
+  initialData: AdminCatalogData;
+  initialError?: string;
 }) {
-  const [products, setProducts] = useState<CatalogProduct[]>([]);
-  const [categories, setCategories] = useState<CatalogCategory[]>([]);
-  const [brands, setBrands] = useState<CatalogBrand[]>([]);
+  const [products, setProducts] = useState<CatalogProduct[]>(
+    initialData.products,
+  );
+  const [categories, setCategories] = useState<CatalogCategory[]>(
+    initialData.categories,
+  );
+  const [brands, setBrands] = useState<CatalogBrand[]>(initialData.brands);
   const [editingProduct, setEditingProduct] = useState<number | null>(null);
   const [productForm, setProductForm] = useState<ProductForm>(emptyProduct);
   const [productImages, setProductImages] = useState<CatalogImage[]>([]);
@@ -142,45 +162,19 @@ export default function AdminCatalogPage({
   const [brandImageError, setBrandImageError] = useState("");
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(initialError ?? "");
   const [saving, setSaving] = useState(false);
   const [ordering, setOrdering] = useState(false);
 
-  const refresh = useCallback(async () => {
-    const [nextProducts, nextCategories, nextBrands] = await Promise.all([
-      catalogRequest<CatalogProduct[]>("products"),
-      catalogRequest<CatalogCategory[]>("categories"),
-      catalogRequest<CatalogBrand[]>("brands"),
-    ]);
-    setProducts(nextProducts ?? []);
-    setCategories(nextCategories ?? []);
-    setBrands(nextBrands ?? []);
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-    const timer = window.setTimeout(() => {
-      refresh()
-        .catch((cause: unknown) => {
-          if (active) {
-            setError(
-              cause instanceof Error
-                ? cause.message
-                : "Не удалось загрузить каталог",
-            );
-          }
-        })
-        .finally(() => {
-          if (active) setLoading(false);
-        });
-    }, 0);
-
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-    };
-  }, [refresh]);
+  async function refresh() {
+    const nextData = unwrapActionResult(
+      await loadCatalogAction(),
+      "Не удалось загрузить каталог",
+    );
+    setProducts(nextData.products);
+    setCategories(nextData.categories);
+    setBrands(nextData.brands);
+  }
 
   const title =
     section === "products"
@@ -294,31 +288,28 @@ export default function AdminCatalogPage({
     setSaving(true);
     setError("");
     try {
-      const payload = {
-        ...productForm,
+      const payload: CatalogProductPayload = {
+        name: productForm.name,
+        description: productForm.description,
         price: Number(productForm.price),
         old_price: productForm.old_price ? Number(productForm.old_price) : null,
         category_id: Number(productForm.category_id),
         brand_id: Number(productForm.brand_id),
       };
-      const product = await catalogRequest<CatalogProduct>(
-        editingProduct ? `products/${editingProduct}` : "products",
-        {
-          method: editingProduct ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
+      const product = unwrapActionResult(
+        await saveProductAction(editingProduct, payload),
+        "Не удалось сохранить товар",
       );
-      if (!editingProduct && product) {
+      if (!editingProduct) {
         setEditingProduct(product.id);
       }
-      if (files.length && product) {
+      if (files.length) {
         const formData = new FormData();
         files.forEach((file) => formData.append("files", file));
-        await catalogRequest<CatalogProduct>(`products/${product.id}/images`, {
-          method: "POST",
-          body: formData,
-        });
+        unwrapActionResult(
+          await uploadProductImagesAction(product.id, formData),
+          "Не удалось загрузить изображения",
+        );
       }
       closeModal();
       await refresh();
@@ -343,15 +334,11 @@ export default function AdminCatalogPage({
     setSaving(true);
     setError("");
     try {
-      const savedItem = await catalogRequest<CatalogCategory | CatalogBrand>(
-        `${kind}${editingId ? `/${editingId}` : ""}`,
-        {
-          method: editingId ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name }),
-        },
+      const savedItem = unwrapActionResult(
+        await saveCatalogItemAction(kind, editingId, name),
+        "Не удалось сохранить запись",
       );
-      const itemId = editingId ?? savedItem?.id;
+      const itemId = editingId ?? savedItem.id;
       const image = kind === "categories" ? categoryImage : brandImage;
       if (itemId && image) {
         if (!editingId) {
@@ -360,10 +347,10 @@ export default function AdminCatalogPage({
         }
         const formData = new FormData();
         formData.append("file", image);
-        await catalogRequest(`${kind}/${itemId}/image`, {
-          method: "POST",
-          body: formData,
-        });
+        unwrapActionResult(
+          await uploadCatalogImageAction(kind, itemId, formData),
+          "Не удалось загрузить изображение",
+        );
       }
       closeModal();
       await refresh();
@@ -376,11 +363,17 @@ export default function AdminCatalogPage({
     }
   }
 
-  async function deleteItem(path: string) {
+  async function deleteItem(
+    kind: "products" | "categories" | "brands",
+    id: number,
+  ) {
     if (!window.confirm("Удалить запись?")) return;
     setError("");
     try {
-      await catalogRequest(path, { method: "DELETE" });
+      unwrapActionResult(
+        await deleteCatalogItemAction(kind, id),
+        "Не удалось удалить запись",
+      );
       await refresh();
     } catch (cause) {
       setError(
@@ -400,11 +393,12 @@ export default function AdminCatalogPage({
     setError("");
     applyOrder();
     try {
-      await catalogRequest<number[]>(`${kind}/order`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ item_ids: itemIds }),
-      });
+      unwrapActionResult(
+        await saveCatalogOrderAction(kind, itemIds),
+        `Не удалось изменить порядок ${
+          kind === "categories" ? "категорий" : "брендов"
+        }`,
+      );
     } catch (cause) {
       restoreOrder();
       setError(
@@ -422,9 +416,10 @@ export default function AdminCatalogPage({
   async function removeImage(productId: number, imageId: number) {
     setError("");
     try {
-      await catalogRequest(`products/${productId}/images/${imageId}`, {
-        method: "DELETE",
-      });
+      unwrapActionResult(
+        await deleteProductImageAction(productId, imageId),
+        "Не удалось удалить изображение",
+      );
       if (editingProduct === productId) {
         setProductImages((images) =>
           images.filter((image) => image.id !== imageId),
@@ -518,15 +513,11 @@ export default function AdminCatalogPage({
           </label>
         </div>
 
-        {loading ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            Загрузка каталога...
-          </div>
-        ) : section === "products" ? (
+        {section === "products" ? (
           <ProductTable
             products={filteredProducts}
             onEdit={editProduct}
-            onDelete={(product) => void deleteItem(`products/${product.id}`)}
+            onDelete={(product) => void deleteItem("products", product.id)}
           />
         ) : section === "categories" ? (
           <NamedTable
@@ -534,7 +525,7 @@ export default function AdminCatalogPage({
             items={filteredCategories}
             onEdit={editCategory}
             onDelete={(category) =>
-              void deleteItem(`categories/${category.id}`)
+              void deleteItem("categories", category.id)
             }
             ordering={ordering}
             searchActive={Boolean(search.trim())}
@@ -552,7 +543,7 @@ export default function AdminCatalogPage({
             kind="brands"
             items={filteredBrands}
             onEdit={editBrand}
-            onDelete={(brand) => void deleteItem(`brands/${brand.id}`)}
+            onDelete={(brand) => void deleteItem("brands", brand.id)}
             ordering={ordering}
             searchActive={Boolean(search.trim())}
             onReorder={(items) =>
@@ -987,6 +978,7 @@ function NamedTable<T extends CatalogCategory | CatalogBrand>({
 
   return (
     <DndContext
+      id={`admin-${kind}-ordering`}
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}

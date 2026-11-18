@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -22,23 +22,32 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Image as ImageIcon, Search } from "lucide-react";
 
-import {
-  catalogRequest,
-  type CatalogProduct,
+import { savePopularProductsAction } from "@/features/catalog-management/actions";
+import type {
+  CatalogProduct,
+  PopularProductsData,
 } from "@/features/catalog-management/api";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { Button } from "@/shared/ui/shadcn/button";
 import { Input } from "@/shared/ui/shadcn/input";
 
 const MAX_POPULAR_PRODUCTS = 8;
 
-export default function AdminPopularProductsPage() {
-  const [products, setProducts] = useState<CatalogProduct[]>([]);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [savedIds, setSavedIds] = useState<number[]>([]);
+export default function AdminPopularProductsPage({
+  initialData,
+  initialError,
+}: {
+  initialData: PopularProductsData;
+  initialError?: string;
+}) {
+  const products = initialData.products;
+  const [selectedIds, setSelectedIds] = useState<number[]>(
+    initialData.selectedIds,
+  );
+  const [savedIds, setSavedIds] = useState<number[]>(initialData.selectedIds);
   const [search, setSearch] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError ?? "");
   const [notice, setNotice] = useState("");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -46,40 +55,6 @@ export default function AdminPopularProductsPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
-
-  const refresh = useCallback(async () => {
-    const [nextProducts, nextSelectedIds] = await Promise.all([
-      catalogRequest<CatalogProduct[]>("products"),
-      catalogRequest<number[]>("popular-products"),
-    ]);
-    setProducts(nextProducts ?? []);
-    setSelectedIds(nextSelectedIds ?? []);
-    setSavedIds(nextSelectedIds ?? []);
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-    const timer = window.setTimeout(() => {
-      refresh()
-        .catch((cause: unknown) => {
-          if (active) {
-            setError(
-              cause instanceof Error
-                ? cause.message
-                : "Не удалось загрузить товары",
-            );
-          }
-        })
-        .finally(() => {
-          if (active) setLoading(false);
-        });
-    }, 0);
-
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-    };
-  }, [refresh]);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLocaleLowerCase("ru-RU");
@@ -141,11 +116,10 @@ export default function AdminPopularProductsPage() {
     setError("");
     setNotice("");
     try {
-      const nextIds = await catalogRequest<number[]>("popular-products", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_ids: selectedIds }),
-      });
+      const nextIds = unwrapActionResult(
+        await savePopularProductsAction(selectedIds),
+        "Не удалось сохранить список популярных товаров",
+      );
       const savedSelection = nextIds ?? selectedIds;
       setSelectedIds(savedSelection);
       setSavedIds(savedSelection);
@@ -176,7 +150,7 @@ export default function AdminPopularProductsPage() {
         </div>
         <Button
           onClick={() => void saveSelection()}
-          disabled={loading || saving || !hasChanges}
+          disabled={saving || !hasChanges}
           className="w-full sm:w-auto"
         >
           {saving ? "Сохранение..." : "Сохранить выбор"}
@@ -217,11 +191,7 @@ export default function AdminPopularProductsPage() {
       )}
 
       <div className="overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm">
-        {loading ? (
-          <p className="p-8 text-center text-sm text-muted-foreground">
-            Загрузка товаров...
-          </p>
-        ) : products.length === 0 ? (
+        {products.length === 0 ? (
           <div className="space-y-3 p-8 text-center">
             <p className="text-sm text-muted-foreground">
               Сначала добавьте товары в каталог.
@@ -236,6 +206,7 @@ export default function AdminPopularProductsPage() {
           </p>
         ) : (
           <DndContext
+            id="admin-popular-products-ordering"
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}

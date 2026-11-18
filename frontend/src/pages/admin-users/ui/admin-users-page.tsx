@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
 import {
-  adminUsersRequest,
-  type AdminUser,
-  type UpdateAdminUser,
+  deleteAdminUserAction,
+  saveAdminUserAction,
+} from "@/features/user-management/actions";
+import type {
+  AdminUser,
+  UpdateAdminUser,
 } from "@/features/user-management/api";
+import { unwrapActionResult } from "@/shared/lib/action-result";
 import { Button } from "@/shared/ui/shadcn/button";
 import {
   Dialog,
@@ -24,43 +28,21 @@ const emptyForm: UpdateAdminUser = {
   email: "",
 };
 
-export default function AdminUsersPage() {
-  const [users, setUsers] = useState<AdminUser[]>([]);
+export default function AdminUsersPage({
+  initialUsers,
+  initialError,
+}: {
+  initialUsers: AdminUser[];
+  initialError?: string;
+}) {
+  const [users, setUsers] = useState<AdminUser[]>(initialUsers);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [form, setForm] = useState<UpdateAdminUser>(emptyForm);
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError ?? "");
   const [notice, setNotice] = useState("");
-
-  useEffect(() => {
-    let active = true;
-    const timer = window.setTimeout(() => {
-      adminUsersRequest<AdminUser[]>()
-        .then((nextUsers) => {
-          if (active) setUsers(nextUsers ?? []);
-        })
-        .catch((cause: unknown) => {
-          if (active) {
-            setError(
-              cause instanceof Error
-                ? cause.message
-                : "Не удалось загрузить пользователей",
-            );
-          }
-        })
-        .finally(() => {
-          if (active) setLoading(false);
-        });
-    }, 0);
-
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-    };
-  }, []);
 
   function openEditor(user: AdminUser) {
     setEditingUser(user);
@@ -97,17 +79,10 @@ export default function AdminUsersPage() {
     };
 
     try {
-      const savedUser = await adminUsersRequest<AdminUser>(
-        editingUser ? `/${editingUser.id}` : "",
-        {
-          method: wasEditing ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
+      const savedUser = unwrapActionResult(
+        await saveAdminUserAction(editingUser?.id ?? null, payload),
+        "Не удалось сохранить пользователя",
       );
-      if (!savedUser) {
-        throw new Error("Сервер не вернул данные пользователя");
-      }
       setUsers((currentUsers) =>
         wasEditing
           ? currentUsers.map((user) =>
@@ -140,7 +115,10 @@ export default function AdminUsersPage() {
     setError("");
     setNotice("");
     try {
-      await adminUsersRequest(`/${user.id}`, { method: "DELETE" });
+      unwrapActionResult(
+        await deleteAdminUserAction(user.id),
+        "Не удалось удалить пользователя",
+      );
       setUsers((currentUsers) =>
         currentUsers.filter((currentUser) => currentUser.id !== user.id),
       );
@@ -187,11 +165,7 @@ export default function AdminUsersPage() {
       )}
 
       <div className="overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm">
-        {loading ? (
-          <p className="p-8 text-center text-sm text-muted-foreground">
-            Загрузка пользователей...
-          </p>
-        ) : users.length === 0 ? (
+        {users.length === 0 ? (
           <p className="p-8 text-center text-sm text-muted-foreground">
             Пользователи не найдены.
           </p>
