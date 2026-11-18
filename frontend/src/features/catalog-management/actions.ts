@@ -7,7 +7,6 @@ import {
   deleteCatalogItem as deleteCatalogItemRequest,
   deleteProductImage as deleteProductImageRequest,
   loadCatalogData,
-  loadPopularProductsData,
   saveCatalogItem as saveCatalogItemRequest,
   saveCatalogOrder as saveCatalogOrderRequest,
   savePopularProducts as savePopularProductsRequest,
@@ -18,13 +17,6 @@ import {
 
 export async function loadCatalogAction() {
   return runAction("Не удалось загрузить каталог", loadCatalogData);
-}
-
-export async function loadPopularProductsAction() {
-  return runAction(
-    "Не удалось загрузить популярные товары",
-    loadPopularProductsData,
-  );
 }
 
 export async function saveProductAction(
