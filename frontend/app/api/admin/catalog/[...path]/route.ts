@@ -20,6 +20,14 @@ async function forward(
 
   if (request.method !== "GET") {
     const origin = request.headers.get("origin");
+    console.log("[origin-check]", {
+      origin,
+      nextOrigin: request.nextUrl.origin,
+      host: request.headers.get("host"),
+      forwardedHost: request.headers.get("x-forwarded-host"),
+      forwardedProto: request.headers.get("x-forwarded-proto"),
+    });
+
     if (origin !== request.nextUrl.origin) {
       return NextResponse.json({ detail: "Недопустимый источник запроса" }, { status: 403 });
     }
