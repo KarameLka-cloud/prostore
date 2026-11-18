@@ -7,8 +7,8 @@ from src.core.security import hash_password
 from src.models import User
 
 ADMIN_LOGIN = "admin"
-ADMIN_NAME = "admin"
-ADMIN_PASSWORD = "password"
+ADMIN_NAME = "Администратор"
+ADMIN_PASSWORD = "dzEUn–8{PV"
 ADMIN_EMAIL = "admin@prostore.local"
 
 
