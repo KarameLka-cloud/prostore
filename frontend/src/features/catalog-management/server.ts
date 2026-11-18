@@ -19,6 +19,30 @@ function buildUrl(path: string): URL {
   return new URL(path, API_URL);
 }
 
+function resolveUploadUrls<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => resolveUploadUrls(item)) as T;
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => {
+      if (
+        (key === "image_path" || key === "path") &&
+        typeof item === "string" &&
+        item.startsWith("/uploads/")
+      ) {
+        return [key, buildUrl(item).toString()];
+      }
+
+      return [key, resolveUploadUrls(item)];
+    }),
+  ) as T;
+}
+
 function getErrorDetail(body: unknown): string | null {
   if (!body || typeof body !== "object" || !("detail" in body)) {
     return null;
@@ -87,7 +111,7 @@ async function backendRequest<T>(
     return undefined;
   }
 
-  return (await response.json()) as T;
+  return resolveUploadUrls((await response.json()) as T);
 }
 
 export async function catalogPublicRequest<T>(path: string): Promise<T> {
