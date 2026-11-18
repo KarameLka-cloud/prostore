@@ -98,7 +98,7 @@ export default function CatalogBrandPage({
         empty={products.length === 0}
         emptyText="У этого бренда пока нет товаров в выбранной категории."
       >
-        <ul className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {sortedProducts.map((product) => (
             <li key={product.id}>
               <CatalogCard
