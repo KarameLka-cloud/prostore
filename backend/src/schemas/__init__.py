@@ -1,4 +1,4 @@
-from .auth import LoginRequest, UserResponse
+from .auth import LoginRequest, UserCreate, UserResponse, UserUpdate
 from .catalog import (
     BrandCreate,
     BrandResponse,
@@ -25,4 +25,6 @@ __all__ = [
     "ProductResponse",
     "ProductUpdate",
     "UserResponse",
+    "UserCreate",
+    "UserUpdate",
 ]

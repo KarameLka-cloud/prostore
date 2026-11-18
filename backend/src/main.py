@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from src.api import auth_router, catalog_router, public_catalog_router
+from src.api import auth_router, catalog_router, public_catalog_router, users_router
 from src.configs.settings import settings
 
 settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -50,6 +50,10 @@ app = FastAPI(
             "name": "Каталог: популярные товары",
             "description": "Управление списком товаров на главной странице.",
         },
+        {
+            "name": "Администрирование пользователей",
+            "description": "Просмотр и изменение учетных записей пользователей.",
+        },
     ],
 )
 
@@ -64,6 +68,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(catalog_router)
 app.include_router(public_catalog_router)
+app.include_router(users_router)
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 

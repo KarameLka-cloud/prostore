@@ -30,7 +30,7 @@ import {
 } from "@/shared/ui/shadcn/sidebar";
 import { Avatar, AvatarFallback } from "@/shared/ui/shadcn/avatar";
 
-import { ChevronRight, LogOut, Package } from "lucide-react";
+import { ChevronRight, LogOut, Package, Users } from "lucide-react";
 
 const items = [
   {
@@ -53,6 +53,17 @@ const items = [
       {
         title: "Популярные товары",
         url: "/admin/catalog/popular-products",
+      },
+    ],
+  },
+  {
+    title: "Пользователи",
+    icon: Users,
+    isActive: false,
+    items: [
+      {
+        title: "Все пользователи",
+        url: "/admin/users",
       },
     ],
   },
