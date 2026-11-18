@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_URL = process.env.API_URL ?? "http://localhost:8000";
+const API_URL = process.env.API_URL;
 const IMAGE_FILENAME = /^[a-f0-9]{32}\.(?:jpg|png|webp)$/;
 
 export async function GET(

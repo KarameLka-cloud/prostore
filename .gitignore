@@ -6,8 +6,6 @@ __pycache__/
 /backend/wheels/
 /backend/*.egg-info
 /backend/.env
-/backend/.env.local
-/backend/.env.prod
 /backend/uploads/
 
 # Virtual environments
@@ -48,8 +46,6 @@ __pycache__/
 
 # env files (can opt-in for committing if needed)
 /frontend/.env
-/frontend/.env.prod
-/frontend/.env*.local
 
 # vercel
 /frontend/.vercel/

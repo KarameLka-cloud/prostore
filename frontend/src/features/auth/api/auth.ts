@@ -5,7 +5,7 @@ export interface AuthUser {
   email: string;
 }
 
-const API_URL = process.env.API_URL ?? "http://localhost:8000";
+const API_URL = process.env.API_URL;
 
 export async function authenticate(
   login: string,

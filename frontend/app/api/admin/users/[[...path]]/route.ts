@@ -5,9 +5,8 @@ import {
   SESSION_COOKIE,
   verifySessionToken,
 } from "@/features/auth/lib/session";
-import { getPublicOrigin } from "@/features/auth/lib/origin";
 
-const API_URL = process.env.API_URL ?? "http://localhost:8000";
+const API_URL = process.env.API_UR;
 
 async function forward(
   request: NextRequest,
@@ -21,7 +20,7 @@ async function forward(
 
   if (request.method !== "GET") {
     const origin = request.headers.get("origin");
-    if (origin !== getPublicOrigin(request)) {
+    if (origin !== request.nextUrl.origin) {
       return NextResponse.json(
         { detail: "Недопустимый источник запроса" },
         { status: 403 },

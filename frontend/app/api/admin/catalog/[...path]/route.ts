@@ -5,9 +5,8 @@ import {
   SESSION_COOKIE,
   verifySessionToken,
 } from "@/features/auth/lib/session";
-import { getPublicOrigin } from "@/features/auth/lib/origin";
 
-const API_URL = process.env.API_URL ?? "http://localhost:8000";
+const API_URL = process.env.API_URL;
 
 async function forward(
   request: NextRequest,
@@ -16,13 +15,19 @@ async function forward(
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token || !verifySessionToken(token)) {
-    return NextResponse.json({ detail: "Требуется авторизация" }, { status: 401 });
+    return NextResponse.json(
+      { detail: "Требуется авторизация" },
+      { status: 401 },
+    );
   }
 
   if (request.method !== "GET") {
     const origin = request.headers.get("origin");
-    if (origin !== getPublicOrigin(request)) {
-      return NextResponse.json({ detail: "Недопустимый источник запроса" }, { status: 403 });
+    if (origin !== request.nextUrl.origin) {
+      return NextResponse.json(
+        { detail: "Недопустимый источник запроса" },
+        { status: 403 },
+      );
     }
   }
 
@@ -42,16 +47,18 @@ async function forward(
   const response = await fetch(target, {
     method: request.method,
     headers,
-    body: request.method === "GET" || request.method === "HEAD"
-      ? undefined
-      : await request.arrayBuffer(),
+    body:
+      request.method === "GET" || request.method === "HEAD"
+        ? undefined
+        : await request.arrayBuffer(),
     cache: "no-store",
   });
 
   return new Response(response.body, {
     status: response.status,
     headers: {
-      "Content-Type": response.headers.get("content-type") ?? "application/json",
+      "Content-Type":
+        response.headers.get("content-type") ?? "application/json",
     },
   });
 }

@@ -7,9 +7,11 @@ from fastapi import (
     Depends,
     File,
     HTTPException,
-    Path as PathParameter,
     UploadFile,
     status,
+)
+from fastapi import (
+    Path as PathParameter,
 )
 from sqlalchemy import func, select, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -104,13 +106,11 @@ async def generate_unique_slug(
     slug = base_slug
     suffix = 2
     while True:
-        existing_id = await db.scalar(
-            select(model.id).where(model.slug == slug)
-        )
+        existing_id = await db.scalar(select(model.id).where(model.slug == slug))
         if existing_id is None or existing_id == current_id:
             return slug
         suffix_text = f"-{suffix}"
-        slug = f"{base_slug[:120 - len(suffix_text)].rstrip('-')}{suffix_text}"
+        slug = f"{base_slug[: 120 - len(suffix_text)].rstrip('-')}{suffix_text}"
         suffix += 1
 
 
@@ -171,9 +171,7 @@ async def update_named_item_order(
 async def list_categories(db: AsyncSession = Depends(get_db)) -> list[Category]:
     return list(
         (
-            await db.scalars(
-                select(Category).order_by(Category.position, Category.id)
-            )
+            await db.scalars(select(Category).order_by(Category.position, Category.id))
         ).all()
     )
 
@@ -188,9 +186,7 @@ async def update_category_order(
     payload: CatalogOrderUpdate,
     db: AsyncSession = Depends(get_db),
 ) -> list[int]:
-    return await update_named_item_order(
-        db, Category, payload.item_ids, "категории"
-    )
+    return await update_named_item_order(db, Category, payload.item_ids, "категории")
 
 
 @router.post(
@@ -351,9 +347,7 @@ async def delete_category_image(
 )
 async def list_brands(db: AsyncSession = Depends(get_db)) -> list[Brand]:
     return list(
-        (
-            await db.scalars(select(Brand).order_by(Brand.position, Brand.id))
-        ).all()
+        (await db.scalars(select(Brand).order_by(Brand.position, Brand.id))).all()
     )
 
 

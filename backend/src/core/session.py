@@ -38,13 +38,17 @@ def require_session(
         )
 
     data, signature = parts
-    expected = base64.urlsafe_b64encode(
-        hmac.new(
-            settings.AUTH_SECRET.encode(),
-            data.encode(),
-            hashlib.sha256,
-        ).digest()
-    ).decode().rstrip("=")
+    expected = (
+        base64.urlsafe_b64encode(
+            hmac.new(
+                settings.AUTH_SECRET.encode(),
+                data.encode(),
+                hashlib.sha256,
+            ).digest()
+        )
+        .decode()
+        .rstrip("=")
+    )
     if not hmac.compare_digest(signature, expected):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,9 +56,7 @@ def require_session(
         )
 
     try:
-        payload = json.loads(
-            base64.urlsafe_b64decode(data + "=" * (-len(data) % 4))
-        )
+        payload = json.loads(base64.urlsafe_b64decode(data + "=" * (-len(data) % 4)))
     except (ValueError, json.JSONDecodeError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
