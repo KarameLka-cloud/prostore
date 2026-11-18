@@ -2,6 +2,7 @@ from .auth import LoginRequest, UserResponse
 from .catalog import (
     BrandCreate,
     BrandResponse,
+    CatalogOrderUpdate,
     CategoryCreate,
     CategoryResponse,
     PopularProductsUpdate,
@@ -14,6 +15,7 @@ from .catalog import (
 __all__ = [
     "BrandCreate",
     "BrandResponse",
+    "CatalogOrderUpdate",
     "CategoryCreate",
     "CategoryResponse",
     "LoginRequest",

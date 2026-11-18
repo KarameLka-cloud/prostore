@@ -3,6 +3,7 @@ export interface CatalogCategory {
   name: string;
   slug: string;
   image_path: string | null;
+  position: number;
 }
 
 export interface CatalogBrand {
@@ -10,6 +11,7 @@ export interface CatalogBrand {
   name: string;
   slug: string;
   image_path: string | null;
+  position: number;
 }
 
 export interface CatalogImage {

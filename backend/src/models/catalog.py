@@ -13,6 +13,7 @@ class Category(Base):
     name: Mapped[str] = mapped_column(String(120), unique=True)
     slug: Mapped[str] = mapped_column(String(120), unique=True)
     image_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    position: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
     products: Mapped[list["Product"]] = relationship(back_populates="category")
 
@@ -24,6 +25,7 @@ class Brand(Base):
     name: Mapped[str] = mapped_column(String(120), unique=True)
     slug: Mapped[str] = mapped_column(String(120), unique=True)
     image_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    position: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
     products: Mapped[list["Product"]] = relationship(back_populates="brand")
 

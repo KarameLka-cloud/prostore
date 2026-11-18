@@ -3,7 +3,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, Image as ImageIcon, Search } from "lucide-react";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  type DragEndEvent,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, Image as ImageIcon, Search } from "lucide-react";
 
 import {
   catalogRequest,
@@ -23,6 +40,12 @@ export default function AdminPopularProductsPage() {
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const refresh = useCallback(async () => {
     const [nextProducts, nextSelectedIds] = await Promise.all([
@@ -68,6 +91,21 @@ export default function AdminPopularProductsPage() {
     );
   }, [products, search]);
 
+  const displayProducts = useMemo(() => {
+    const productsById = new Map(
+      filteredProducts.map((product) => [product.id, product]),
+    );
+    const selected = selectedIds.flatMap((id) => {
+      const product = productsById.get(id);
+      return product ? [product] : [];
+    });
+    const selectedSet = new Set(selectedIds);
+    return [
+      ...selected,
+      ...filteredProducts.filter((product) => !selectedSet.has(product.id)),
+    ];
+  }, [filteredProducts, selectedIds]);
+
   const hasChanges =
     selectedIds.length !== savedIds.length ||
     selectedIds.some((id, index) => id !== savedIds[index]);
@@ -88,20 +126,13 @@ export default function AdminPopularProductsPage() {
     );
   }
 
-  function moveProduct(productId: number, offset: -1 | 1) {
-    setSelectedIds((ids) => {
-      const currentIndex = ids.indexOf(productId);
-      const nextIndex = currentIndex + offset;
-      if (currentIndex < 0 || nextIndex < 0 || nextIndex >= ids.length) {
-        return ids;
-      }
-      const nextIds = [...ids];
-      [nextIds[currentIndex], nextIds[nextIndex]] = [
-        nextIds[nextIndex],
-        nextIds[currentIndex],
-      ];
-      return nextIds;
-    });
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    if (!over || saving || search.trim() || active.id === over.id) return;
+    const oldIndex = selectedIds.findIndex((id) => id === active.id);
+    const newIndex = selectedIds.findIndex((id) => id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    setSelectedIds((ids) => arrayMove(ids, oldIndex, newIndex));
+    setError("");
     setNotice("");
   }
 
@@ -139,7 +170,8 @@ export default function AdminPopularProductsPage() {
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Выберите до {MAX_POPULAR_PRODUCTS} товаров для главной страницы.
-            Порядок можно изменить стрелками.
+            Порядок выбранных товаров можно изменить перетаскиванием за ручку
+            слева.
           </p>
         </div>
         <Button
@@ -203,89 +235,132 @@ export default function AdminPopularProductsPage() {
             По вашему запросу ничего не найдено.
           </p>
         ) : (
-          <ul className="divide-y">
-            {filteredProducts.map((product) => {
-              const selectedIndex = selectedIds.indexOf(product.id);
-              const firstImage = [...product.images].sort(
-                (left, right) => left.id - right.id,
-              )[0];
-              return (
-                <li
-                  key={product.id}
-                  className="flex items-center gap-3 p-3 sm:gap-4 sm:p-4"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedIndex >= 0}
-                    onChange={(event) =>
-                      toggleProduct(product.id, event.target.checked)
-                    }
-                    aria-label={`Добавить ${product.name} в популярные товары`}
-                    className="size-4 shrink-0 accent-violet-600"
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={displayProducts
+                .filter((product) => selectedIds.includes(product.id))
+                .map((product) => product.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="divide-y">
+                {displayProducts.map((product) => (
+                  <SortableProductRow
+                    key={product.id}
+                    product={product}
+                    selectedIndex={selectedIds.indexOf(product.id)}
+                    disabled={Boolean(search.trim()) || saving}
+                    onToggle={(checked) => toggleProduct(product.id, checked)}
                   />
-                  {firstImage ? (
-                    <Image
-                      src={firstImage.path}
-                      alt=""
-                      width={48}
-                      height={48}
-                      unoptimized
-                      className="size-12 shrink-0 rounded-md border object-cover"
-                    />
-                  ) : (
-                    <span className="flex size-12 shrink-0 items-center justify-center rounded-md border bg-muted text-muted-foreground">
-                      <ImageIcon className="size-4" />
-                    </span>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{product.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {product.category.name} · {product.brand.name}
-                    </p>
-                  </div>
-                  <div className="hidden flex-col items-end sm:flex">
-                    {product.old_price && (
-                      <span className="text-xs text-muted-foreground line-through">
-                        {Number(product.old_price).toLocaleString("ru-RU")} ₽
-                      </span>
-                    )}
-                    <span className="text-sm font-medium">
-                      {Number(product.price).toLocaleString("ru-RU")} ₽
-                    </span>
-                  </div>
-                  {selectedIndex >= 0 && (
-                    <div className="flex shrink-0 items-center gap-1">
-                      <span className="mr-1 text-xs text-muted-foreground">
-                        {selectedIndex + 1}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        disabled={selectedIndex === 0}
-                        aria-label={`Переместить ${product.name} выше`}
-                        onClick={() => moveProduct(product.id, -1)}
-                      >
-                        <ArrowUp />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        disabled={selectedIndex === selectedIds.length - 1}
-                        aria-label={`Переместить ${product.name} ниже`}
-                        onClick={() => moveProduct(product.id, 1)}
-                      >
-                        <ArrowDown />
-                      </Button>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </section>
+  );
+}
+
+function SortableProductRow({
+  product,
+  selectedIndex,
+  disabled,
+  onToggle,
+}: {
+  product: CatalogProduct;
+  selectedIndex: number;
+  disabled: boolean;
+  onToggle: (checked: boolean) => void;
+}) {
+  const isSelected = selectedIndex >= 0;
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: product.id,
+    disabled: !isSelected || disabled,
+  });
+  const firstImage = [...product.images].sort(
+    (left, right) => left.id - right.id,
+  )[0];
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      className={`flex items-center gap-3 p-3 sm:gap-4 sm:p-4 ${
+        isDragging ? "relative z-10 rounded-md bg-card opacity-75 shadow-lg" : ""
+      }`}
+    >
+      {isSelected ? (
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          disabled={disabled}
+          aria-label={`Перетащить ${product.name}`}
+          title={disabled ? "Очистите поиск, чтобы менять порядок" : "Перетащить"}
+          style={{ touchAction: "none" }}
+          className="flex size-7 shrink-0 cursor-grab items-center justify-center rounded text-muted-foreground hover:bg-muted active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <GripVertical className="size-4" />
+        </button>
+      ) : (
+        <span className="size-7 shrink-0" aria-hidden="true" />
+      )}
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={(event) => onToggle(event.target.checked)}
+        aria-label={`Добавить ${product.name} в популярные товары`}
+        className="size-4 shrink-0 accent-violet-600"
+      />
+      {firstImage ? (
+        <Image
+          src={firstImage.path}
+          alt=""
+          width={48}
+          height={48}
+          unoptimized
+          className="size-12 shrink-0 rounded-md border object-cover"
+        />
+      ) : (
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-md border bg-muted text-muted-foreground">
+          <ImageIcon className="size-4" />
+        </span>
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">{product.name}</p>
+        <p className="truncate text-xs text-muted-foreground">
+          {product.category.name} · {product.brand.name}
+        </p>
+      </div>
+      <div className="hidden flex-col items-end sm:flex">
+        {product.old_price && (
+          <span className="text-xs text-muted-foreground line-through">
+            {Number(product.old_price).toLocaleString("ru-RU")} ₽
+          </span>
+        )}
+        <span className="text-sm font-medium">
+          {Number(product.price).toLocaleString("ru-RU")} ₽
+        </span>
+      </div>
+      {isSelected && (
+        <span className="mr-1 shrink-0 text-xs text-muted-foreground">
+          {selectedIndex + 1}
+        </span>
+      )}
+    </li>
   );
 }

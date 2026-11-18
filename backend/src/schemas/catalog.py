@@ -27,6 +27,7 @@ class CategoryResponse(CategoryCreate):
     image_path: str | None = Field(
         description="Путь к изображению или null, если изображение не загружено."
     )
+    position: int = Field(description="Позиция категории в каталоге.")
 
 
 class BrandCreate(BaseModel):
@@ -53,6 +54,22 @@ class BrandResponse(BrandCreate):
     image_path: str | None = Field(
         description="Путь к изображению или null, если изображение не загружено."
     )
+    position: int = Field(description="Позиция бренда в каталоге.")
+
+
+class CatalogOrderUpdate(BaseModel):
+    item_ids: list[int] = Field(
+        description="Все ID записей в новом порядке отображения."
+    )
+
+    @field_validator("item_ids")
+    @classmethod
+    def validate_item_ids(cls, value: list[int]) -> list[int]:
+        if any(item_id < 1 for item_id in value):
+            raise ValueError("ID записи должен быть положительным")
+        if len(set(value)) != len(value):
+            raise ValueError("Список не должен содержать дубликаты")
+        return value
 
 
 class ProductCreate(BaseModel):

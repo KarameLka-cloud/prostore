@@ -11,7 +11,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -24,6 +24,7 @@ from src.models import Brand, Category, Product, ProductImage
 from src.schemas import (
     BrandCreate,
     BrandResponse,
+    CatalogOrderUpdate,
     CategoryCreate,
     CategoryResponse,
     PopularProductsUpdate,
@@ -140,15 +141,56 @@ async def ensure_product_relations(
         raise HTTPException(status_code=404, detail="Бренд не найден")
 
 
+async def update_named_item_order(
+    db: AsyncSession,
+    model: type[Category] | type[Brand],
+    item_ids: list[int],
+    label: str,
+) -> list[int]:
+    items = list((await db.scalars(select(model))).all())
+    items_by_id = {item.id: item for item in items}
+    if len(items) != len(item_ids) or set(items_by_id) != set(item_ids):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Нужно указать все существующие записи: {label}",
+        )
+
+    for position, item_id in enumerate(item_ids):
+        items_by_id[item_id].position = position
+    await db.commit()
+    return item_ids
+
+
 @router.get(
     "/categories",
     response_model=list[CategoryResponse],
     tags=["Каталог: категории"],
     summary="Получить категории",
-    description="Возвращает все категории, отсортированные по названию.",
+    description="Возвращает все категории в сохранённом порядке.",
 )
 async def list_categories(db: AsyncSession = Depends(get_db)) -> list[Category]:
-    return list((await db.scalars(select(Category).order_by(Category.name))).all())
+    return list(
+        (
+            await db.scalars(
+                select(Category).order_by(Category.position, Category.id)
+            )
+        ).all()
+    )
+
+
+@router.put(
+    "/categories/order",
+    response_model=list[int],
+    tags=["Каталог: категории"],
+    summary="Изменить порядок категорий",
+)
+async def update_category_order(
+    payload: CatalogOrderUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> list[int]:
+    return await update_named_item_order(
+        db, Category, payload.item_ids, "категории"
+    )
 
 
 @router.post(
@@ -167,9 +209,11 @@ async def create_category(
     name = payload.name.strip()
     await ensure_name_available(db, Category, name)
     slug = await generate_unique_slug(db, Category, name)
+    max_position = await db.scalar(select(func.max(Category.position)))
     category = Category(
         name=name,
         slug=slug,
+        position=(max_position if max_position is not None else -1) + 1,
     )
     db.add(category)
     await db.commit()
@@ -303,10 +347,27 @@ async def delete_category_image(
     response_model=list[BrandResponse],
     tags=["Каталог: бренды"],
     summary="Получить бренды",
-    description="Возвращает все бренды, отсортированные по названию.",
+    description="Возвращает все бренды в сохранённом порядке.",
 )
 async def list_brands(db: AsyncSession = Depends(get_db)) -> list[Brand]:
-    return list((await db.scalars(select(Brand).order_by(Brand.name))).all())
+    return list(
+        (
+            await db.scalars(select(Brand).order_by(Brand.position, Brand.id))
+        ).all()
+    )
+
+
+@router.put(
+    "/brands/order",
+    response_model=list[int],
+    tags=["Каталог: бренды"],
+    summary="Изменить порядок брендов",
+)
+async def update_brand_order(
+    payload: CatalogOrderUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> list[int]:
+    return await update_named_item_order(db, Brand, payload.item_ids, "бренды")
 
 
 @router.post(
@@ -325,9 +386,11 @@ async def create_brand(
     name = payload.name.strip()
     await ensure_name_available(db, Brand, name)
     slug = await generate_unique_slug(db, Brand, name)
+    max_position = await db.scalar(select(func.max(Brand.position)))
     brand = Brand(
         name=name,
         slug=slug,
+        position=(max_position if max_position is not None else -1) + 1,
     )
     db.add(brand)
     await db.commit()

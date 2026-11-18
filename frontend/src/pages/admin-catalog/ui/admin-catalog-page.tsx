@@ -3,7 +3,25 @@
 import Image from "next/image";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  type DragEndEvent,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   Boxes,
+  GripVertical,
   Image as ImageIcon,
   Pencil,
   Plus,
@@ -127,6 +145,7 @@ export default function AdminCatalogPage({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [ordering, setOrdering] = useState(false);
 
   const refresh = useCallback(async () => {
     const [nextProducts, nextCategories, nextBrands] = await Promise.all([
@@ -370,6 +389,36 @@ export default function AdminCatalogPage({
     }
   }
 
+  async function saveNamedOrder(
+    kind: "categories" | "brands",
+    itemIds: number[],
+    applyOrder: () => void,
+    restoreOrder: () => void,
+  ) {
+    if (ordering) return;
+    setOrdering(true);
+    setError("");
+    applyOrder();
+    try {
+      await catalogRequest<number[]>(`${kind}/order`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item_ids: itemIds }),
+      });
+    } catch (cause) {
+      restoreOrder();
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : `Не удалось изменить порядок ${
+              kind === "categories" ? "категорий" : "брендов"
+            }`,
+      );
+    } finally {
+      setOrdering(false);
+    }
+  }
+
   async function removeImage(productId: number, imageId: number) {
     setError("");
     try {
@@ -452,7 +501,9 @@ export default function AdminCatalogPage({
             <p className="mt-1 text-sm text-muted-foreground">
               {search
                 ? `Показано ${filteredCount} из ${listCount}`
-                : `${listCount} ${pluralize(section, listCount)}`}
+                : section === "categories" || section === "brands"
+                  ? `${listCount} ${pluralize(section, listCount)} · перетащите за ручку слева, чтобы изменить порядок`
+                  : `${listCount} ${pluralize(section, listCount)}`}
             </p>
           </div>
           <label className="relative block w-full sm:max-w-xs">
@@ -485,6 +536,16 @@ export default function AdminCatalogPage({
             onDelete={(category) =>
               void deleteItem(`categories/${category.id}`)
             }
+            ordering={ordering}
+            searchActive={Boolean(search.trim())}
+            onReorder={(items) =>
+              saveNamedOrder(
+                "categories",
+                items.map((item) => item.id),
+                () => setCategories(items),
+                () => setCategories(categories),
+              )
+            }
           />
         ) : (
           <NamedTable
@@ -492,6 +553,16 @@ export default function AdminCatalogPage({
             items={filteredBrands}
             onEdit={editBrand}
             onDelete={(brand) => void deleteItem(`brands/${brand.id}`)}
+            ordering={ordering}
+            searchActive={Boolean(search.trim())}
+            onReorder={(items) =>
+              saveNamedOrder(
+                "brands",
+                items.map((item) => item.id),
+                () => setBrands(items),
+                () => setBrands(brands),
+              )
+            }
           />
         )}
       </div>
@@ -879,12 +950,25 @@ function NamedTable<T extends CatalogCategory | CatalogBrand>({
   items,
   onEdit,
   onDelete,
+  ordering,
+  searchActive,
+  onReorder,
 }: {
   kind: "categories" | "brands";
   items: T[];
   onEdit: (item: T) => void;
   onDelete: (item: T) => void;
+  ordering: boolean;
+  searchActive: boolean;
+  onReorder: (items: T[]) => Promise<void>;
 }) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
   if (items.length === 0) {
     return (
       <EmptyState
@@ -892,63 +976,135 @@ function NamedTable<T extends CatalogCategory | CatalogBrand>({
       />
     );
   }
+
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    if (!over || ordering || searchActive || active.id === over.id) return;
+    const oldIndex = items.findIndex((item) => item.id === active.id);
+    const newIndex = items.findIndex((item) => item.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    void onReorder(arrayMove(items, oldIndex, newIndex));
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[620px] text-left text-sm">
-        <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-          <tr>
-            <th className="px-4 py-3 font-medium">
-              {kind === "categories" ? "Категория" : "Бренд"}
-            </th>
-            <th className="px-4 py-3 font-medium">Slug</th>
-            <th className="px-4 py-3 text-right font-medium">Действия</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y">
-          {items.map((item) => {
-            const imagePath =
-              kind === "categories"
-                ? (item as CatalogCategory).image_path
-                : (item as CatalogBrand).image_path;
-            return (
-              <tr key={item.id} className="hover:bg-muted/30">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    {imagePath ? (
-                      <Image
-                        src={imagePath}
-                        alt=""
-                        width={40}
-                        height={40}
-                        unoptimized
-                        className="size-10 rounded-md border object-cover"
-                      />
-                    ) : (
-                      <div className="flex size-10 items-center justify-center rounded-md border bg-muted text-muted-foreground">
-                        {kind === "categories" ? (
-                          <Tag className="size-4" />
-                        ) : (
-                          <Store className="size-4" />
-                        )}
-                      </div>
-                    )}
-                    <span className="font-medium">{item.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-muted-foreground">{item.slug}</td>
-                <td className="px-4 py-3">
-                  <RowActions
-                    label={item.name}
-                    onEdit={() => onEdit(item)}
-                    onDelete={() => onDelete(item)}
-                  />
-                </td>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={items.map((item) => item.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[620px] text-left text-sm">
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="w-12 px-2 py-3" aria-label="Изменить порядок" />
+                <th className="px-4 py-3 font-medium">
+                  {kind === "categories" ? "Категория" : "Бренд"}
+                </th>
+                <th className="px-4 py-3 font-medium">Slug</th>
+                <th className="px-4 py-3 text-right font-medium">Действия</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+            </thead>
+            <tbody className="divide-y">
+              {items.map((item) => (
+                <SortableNamedRow
+                  key={item.id}
+                  item={item}
+                  kind={kind}
+                  disabled={ordering || searchActive || items.length < 2}
+                  onEdit={() => onEdit(item)}
+                  onDelete={() => onDelete(item)}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+function SortableNamedRow<T extends CatalogCategory | CatalogBrand>({
+  item,
+  kind,
+  disabled,
+  onEdit,
+  onDelete,
+}: {
+  item: T;
+  kind: "categories" | "brands";
+  disabled: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id, disabled });
+  const imagePath =
+    kind === "categories"
+      ? (item as CatalogCategory).image_path
+      : (item as CatalogBrand).image_path;
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      className={`hover:bg-muted/30 ${
+        isDragging ? "relative z-10 bg-card opacity-75 shadow-lg" : ""
+      }`}
+    >
+      <td className="w-12 px-2 py-3">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          disabled={disabled}
+          aria-label={`Перетащить ${item.name}`}
+          title={disabled ? "Очистите поиск, чтобы менять порядок" : "Перетащить"}
+          style={{ touchAction: "none" }}
+          className="flex size-8 cursor-grab items-center justify-center rounded text-muted-foreground hover:bg-muted active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <GripVertical className="size-4" />
+        </button>
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-3">
+          {imagePath ? (
+            <Image
+              src={imagePath}
+              alt=""
+              width={40}
+              height={40}
+              unoptimized
+              className="size-10 rounded-md border object-cover"
+            />
+          ) : (
+            <div className="flex size-10 items-center justify-center rounded-md border bg-muted text-muted-foreground">
+              {kind === "categories" ? (
+                <Tag className="size-4" />
+              ) : (
+                <Store className="size-4" />
+              )}
+            </div>
+          )}
+          <span className="font-medium">{item.name}</span>
+        </div>
+      </td>
+      <td className="px-4 py-3 text-muted-foreground">{item.slug}</td>
+      <td className="px-4 py-3">
+        <RowActions label={item.name} onEdit={onEdit} onDelete={onDelete} />
+      </td>
+    </tr>
   );
 }
 

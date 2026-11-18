@@ -16,12 +16,12 @@ router = APIRouter(prefix="/api/catalog", tags=["Публичный катало
     "/categories",
     response_model=list[CategoryResponse],
     summary="Получить категории",
-    description="Возвращает категории каталога, отсортированные по названию.",
+    description="Возвращает категории каталога в сохранённом порядке.",
 )
 async def list_public_categories(
     db: AsyncSession = Depends(get_db),
 ) -> list[Category]:
-    result = await db.scalars(select(Category).order_by(Category.name))
+    result = await db.scalars(select(Category).order_by(Category.position, Category.id))
     return list(result.all())
 
 
@@ -63,7 +63,7 @@ async def list_public_category_brands(
         .join(Product, Product.brand_id == Brand.id)
         .where(Product.category_id == category_id)
         .distinct()
-        .order_by(Brand.name)
+        .order_by(Brand.position, Brand.id)
     )
     return list(result.all())
 
