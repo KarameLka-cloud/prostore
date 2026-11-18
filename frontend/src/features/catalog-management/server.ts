@@ -35,7 +35,7 @@ function resolveUploadUrls<T>(value: T): T {
         typeof item === "string" &&
         item.startsWith("/uploads/")
       ) {
-        return [key, buildUrl(item).toString()];
+        return [key, item];
       }
 
       return [key, resolveUploadUrls(item)];
