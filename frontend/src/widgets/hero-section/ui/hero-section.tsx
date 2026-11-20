@@ -14,19 +14,22 @@ export default function HeroSection() {
           </h1>
 
           <p className="mx-auto mb-9 max-w-115 text-[17px] leading-relaxed text-white/80 md:mx-0">
-            Мы полностью настраиваем ее под ключ 🔑 создаем личный зарубежный
-            аккаунт в подарок и дарим подписку на игры 🎁
+            🔑 Мы полностью настраиваем ее под ключ
+            <br />
+            🌍 Создаем личный зарубежный
+            <br />
+            🎁 Аккаунт в подарок и дарим подписку на игры
           </p>
 
           <CatalogButton className="hidden md:mx-0 md:flex" />
         </div>
 
-        <div className="relative mx-auto w-full max-w-[25rem]">
+        <div className="relative mx-auto w-full max-w-100">
           <div
             aria-hidden="true"
             className="absolute -inset-4 rounded-[32px] bg-linear-to-br from-brand-violet/35 to-brand-pink/30 blur-2xl"
           />
-          <div className="relative aspect-[768/1365] overflow-hidden rounded-[24px] border border-white/10 bg-glass shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <div className="relative aspect-768/1365 overflow-hidden rounded-[24px] border border-white/10 bg-glass shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
             <Image
               src="/images/pages/console-purchase-hero.png"
               alt="Консоль PlayStation 5 и игра GTA V в рекламе Prostore"
