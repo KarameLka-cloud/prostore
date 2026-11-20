@@ -1,20 +1,7 @@
-import {
-  CreditCard,
-  RefreshCw,
-  Tag,
-  Truck,
-  type LucideIcon,
-} from "lucide-react";
+import { CreditCard, RefreshCw, Tag, Truck } from "lucide-react";
+import { type BenefitItem } from "./types";
 
-interface Benefits {
-  title: string;
-  description: string;
-  href: string;
-  icon: LucideIcon;
-  glow: string;
-}
-
-export const BENEFITS: Benefits[] = [
+export const BENEFITS: BenefitItem[] = [
   {
     title: "Низкие цены",
     description: "У нас очень низкие цены на цифровую технику",

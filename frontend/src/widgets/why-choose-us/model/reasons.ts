@@ -5,15 +5,10 @@ import {
   Shield,
   Truck,
   Wrench,
-  type LucideIcon,
 } from "lucide-react";
+import { type ReasonItem } from "./types";
 
-interface Reasons {
-  icon: LucideIcon;
-  title: string;
-}
-
-export const REASONS: Reasons[] = [
+export const REASONS: ReasonItem[] = [
   {
     icon: Shield,
     title: "Проверенная техника и оригинальные товары",
