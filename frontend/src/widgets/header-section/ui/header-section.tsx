@@ -39,15 +39,19 @@ export default function HeaderSection({ userName }: { userName?: string }) {
 
   return (
     <>
-      <div className="hidden lg:flex justify-between items-center px-2 py-4 text-white/80">
+      <div className="hidden lg:flex justify-between items-center p-2 text-white/80">
         <a
           href={contactsConfig.mapUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 transition-colors hover:text-white"
+          className="flex items-center gap-2 transition-colors hover:text-white text-sm"
         >
           <MapPin className="size-4 shrink-0" />
-          <span>Г. Иркутск</span>
+          <span>
+            {contactConfig.city}
+            <br />
+            {contactConfig.street}
+          </span>
         </a>
         <nav className="hidden gap-8 lg:flex" aria-label="Основная навигация">
           {navHeaderConfig.map((item) => (
@@ -68,7 +72,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
             <Phone className="size-4 shrink-0" />
             <span>{contactConfig.phoneCity}</span>
           </a>
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-2 text-sm">
             <Clock className="size-4 shrink-0" />
             {contactConfig.hours}
           </span>
@@ -172,7 +176,7 @@ export default function HeaderSection({ userName }: { userName?: string }) {
               className="flex items-center gap-3 text-white/80 transition-colors hover:text-white"
             >
               <MapPin className="size-5 shrink-0" />
-              <span>Г. Иркутск</span>
+              <span>{contactConfig.address}</span>
             </a>
             <a
               href={contactConfig.phoneCityHref}

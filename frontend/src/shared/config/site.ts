@@ -4,6 +4,8 @@ export interface SiteConfig {
 }
 
 export interface SiteContact {
+  city: string;
+  street: string;
   address: string;
   phone: string;
   phoneCity: string;
@@ -46,6 +48,8 @@ export const siteConfig: SiteConfig = {
 };
 
 export const contactConfig: SiteContact = {
+  city: "г. Иркутск",
+  street: "ул. Иркутской 30-й Дивизии, 55",
   address: "г. Иркутск, ул. Иркутской 30-й Дивизии, 55",
   phone: "+7 (964) 270-2242",
   phoneCity: "+7 (3952) 922-242",
