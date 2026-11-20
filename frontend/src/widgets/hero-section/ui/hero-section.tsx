@@ -16,9 +16,9 @@ export default function HeroSection() {
           <p className="mx-auto mb-9 max-w-115 text-[17px] leading-relaxed text-white/80 md:mx-0">
             🔑 Мы полностью настраиваем ее под ключ
             <br />
-            🌍 Создаем личный зарубежный
+            🌍 Создаем личный зарубежный аккаунт
             <br />
-            🎁 В подарок аккаунт и подписка на игры
+            🎁 В подарок подписка на игры
           </p>
 
           <CatalogButton className="hidden md:mx-0 md:flex" />
