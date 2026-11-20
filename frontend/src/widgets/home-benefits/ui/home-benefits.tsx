@@ -1,36 +1,5 @@
-import { CreditCard, RefreshCw, Tag, Truck } from "lucide-react";
 import Link from "next/link";
-
-const BENEFITS = [
-  {
-    title: "Низкие цены",
-    description: "У нас очень низкие цены на цифровую технику",
-    href: "/catalog",
-    icon: Tag,
-    glow: "from-brand-violet/20 to-brand-pink/10",
-  },
-  {
-    title: "TradeIn",
-    description: "Меняем вашу технику на новую с доплатой",
-    href: "/tradein",
-    icon: RefreshCw,
-    glow: "from-brand-blue/20 to-brand-violet/10",
-  },
-  {
-    title: "Быстрая доставка",
-    description: "Заказ любой техники и доставка от 3 дней",
-    href: "/contacts",
-    icon: Truck,
-    glow: "from-brand-pink/20 to-brand-violet/10",
-  },
-  {
-    title: "Доступные способы оплаты",
-    description: "Наличными, картой или в кредит",
-    href: "/credit",
-    icon: CreditCard,
-    glow: "from-brand-violet/20 to-brand-blue/10",
-  },
-];
+import { BENEFITS } from "../model/benefits";
 
 export default function HomeBenefits() {
   return (
@@ -48,7 +17,7 @@ export default function HomeBenefits() {
             />
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -bottom-12 -right-8 text-white/[0.08] transition-transform duration-300 group-hover:scale-105 group-hover:text-white/[0.12]"
+              className="pointer-events-none absolute -bottom-12 -right-8 text-white/8 transition-transform duration-300 group-hover:scale-105 group-hover:text-white/12"
             >
               <Icon className="size-44" strokeWidth={1} />
             </div>

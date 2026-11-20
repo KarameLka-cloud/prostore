@@ -1,42 +1,7 @@
-import {
-  CheckCircle2,
-  Heart,
-  RefreshCw,
-  Shield,
-  Truck,
-  Wrench,
-} from "lucide-react";
-
 import GlassCard from "@/shared/ui/custom/glass-card";
 import IconBadge from "@/shared/ui/custom/icon-badge";
 import SectionTitle from "@/shared/ui/custom/section-title";
-
-const REASONS = [
-  {
-    icon: Shield,
-    title: "Проверенная техника и оригинальные товары",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Честные цены и условия",
-  },
-  {
-    icon: Heart,
-    title: "Гарантия и проверка перед покупкой",
-  },
-  {
-    icon: RefreshCw,
-    title: "Рассрочка и Trade-in",
-  },
-  {
-    icon: Truck,
-    title: "Доставка по городу и Авито Доставка",
-  },
-  {
-    icon: Wrench,
-    title: "Настройка техники и помощь после покупки",
-  },
-];
+import { REASONS } from "../model/reasons";
 
 export default function WhyChooseUs() {
   return (
