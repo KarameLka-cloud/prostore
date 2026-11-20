@@ -14,6 +14,11 @@ export interface SiteContact {
   whatsapp: string;
 }
 
+export interface NavHeaderConfig {
+  label: string;
+  href: string;
+}
+
 export interface NavConfig {
   label: string;
   href: string;
@@ -66,11 +71,18 @@ export const socialLinksConfig: SocialLinkConfig[] = [
   { label: "Позвонить", href: contactConfig.phoneHref, icon: "phone" },
 ];
 
-export const navConfig: NavConfig[] = [
+export const navHeaderConfig: NavHeaderConfig[] = [
   { label: "Каталог", href: "/catalog" },
   { label: "TradeIn", href: "/tradein" },
   { label: "Рассрочка", href: "/credit" },
   { label: "Аренда", href: "/rental" },
   { label: "О нас", href: "/about" },
   { label: "Контакты", href: "/contacts" },
+];
+
+export const navConfig: NavConfig[] = [
+  { label: "Игровые приставки", href: "/catalog/igrovye-pristavki" },
+  { label: "Экшн-Камеры", href: "/catalog/ekshn-kamery" },
+  { label: "Умные очки", href: "/catalog/umnye-ochki" },
+  { label: "Гаджеты", href: "/catalog/gadzhety" },
 ];

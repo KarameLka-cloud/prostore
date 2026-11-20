@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { navConfig, siteConfig } from "@/shared/config/site";
+import { navHeaderConfig, siteConfig } from "@/shared/config/site";
 import { getCurrentYear } from "@/shared/lib";
 import SocialLinks from "@/shared/ui/custom/social-links";
 
@@ -29,7 +29,7 @@ export default async function FooterSection() {
           className="flex flex-wrap items-start justify-center gap-x-6 gap-y-3 sm:justify-end"
           aria-label="Навигация в подвале"
         >
-          {navConfig.map((item) => (
+          {navHeaderConfig.map((item) => (
             <Link
               key={item.href}
               href={item.href}
