@@ -18,7 +18,7 @@ export default function HeroSection() {
             <br />
             🌍 Создаем личный зарубежный
             <br />
-            🎁 Аккаунт в подарок и дарим подписку на игры
+            🎁 Аккаунт в подарок и подписка на игры
           </p>
 
           <CatalogButton className="hidden md:mx-0 md:flex" />
