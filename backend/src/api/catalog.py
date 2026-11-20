@@ -1,0 +1,751 @@
+from pathlib import Path
+from typing import Annotated
+from uuid import uuid4
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    UploadFile,
+    status,
+)
+from fastapi import (
+    Path as PathParameter,
+)
+from sqlalchemy import func, select, update
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from src.configs.database import get_db
+from src.configs.settings import settings
+from src.core.session import require_session
+from src.core.slug import slugify
+from src.models import Brand, Category, Product, ProductImage
+from src.schemas import (
+    BrandCreate,
+    BrandResponse,
+    CatalogOrderUpdate,
+    CategoryCreate,
+    CategoryResponse,
+    PopularProductsUpdate,
+    ProductCreate,
+    ProductResponse,
+    ProductUpdate,
+)
+
+router = APIRouter(
+    prefix="/api/admin/catalog",
+    dependencies=[Depends(require_session)],
+    responses={401: {"description": "Требуется действующая Bearer-сессия"}},
+)
+
+MAX_IMAGE_SIZE = 5 * 1024 * 1024
+MAX_IMAGES_PER_UPLOAD = 10
+MAX_POPULAR_PRODUCTS = 8
+IMAGE_FORMATS = {
+    "image/jpeg": (".jpg", lambda data: data.startswith(b"\xff\xd8\xff")),
+    "image/png": (".png", lambda data: data.startswith(b"\x89PNG\r\n\x1a\n")),
+    "image/webp": (
+        ".webp",
+        lambda data: data.startswith(b"RIFF") and data[8:12] == b"WEBP",
+    ),
+}
+
+
+async def save_image(file: UploadFile) -> Path:
+    format_info = IMAGE_FORMATS.get(file.content_type or "")
+    if format_info is None:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="Поддерживаются только JPEG, PNG и WebP",
+        )
+
+    content = await file.read(MAX_IMAGE_SIZE + 1)
+    if len(content) > MAX_IMAGE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Размер изображения не должен превышать 5 МБ",
+        )
+
+    extension, is_valid = format_info
+    if not is_valid(content):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Содержимое файла не является допустимым изображением",
+        )
+
+    settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    destination = settings.UPLOAD_DIR / f"{uuid4().hex}{extension}"
+    destination.write_bytes(content)
+    return destination
+
+
+async def ensure_name_available(
+    db: AsyncSession,
+    model: type[Category] | type[Brand],
+    name: str,
+    current_id: int | None = None,
+) -> None:
+    existing = await db.scalar(select(model).where(model.name == name))
+    if existing is not None and existing.id != current_id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Запись с таким названием уже существует",
+        )
+
+
+async def generate_unique_slug(
+    db: AsyncSession,
+    model: type[Category] | type[Brand] | type[Product],
+    name: str,
+    current_id: int | None = None,
+) -> str:
+    base_slug = slugify(name)
+    slug = base_slug
+    suffix = 2
+    while True:
+        existing_id = await db.scalar(select(model.id).where(model.slug == slug))
+        if existing_id is None or existing_id == current_id:
+            return slug
+        suffix_text = f"-{suffix}"
+        slug = f"{base_slug[: 120 - len(suffix_text)].rstrip('-')}{suffix_text}"
+        suffix += 1
+
+
+async def get_product(db: AsyncSession, product_id: int) -> Product:
+    product = await db.scalar(
+        select(Product)
+        .options(
+            selectinload(Product.category),
+            selectinload(Product.brand),
+            selectinload(Product.images),
+        )
+        .where(Product.id == product_id)
+        .execution_options(populate_existing=True)
+    )
+    if product is None:
+        raise HTTPException(status_code=404, detail="Товар не найден")
+    return product
+
+
+async def ensure_product_relations(
+    db: AsyncSession,
+    category_id: int,
+    brand_id: int,
+) -> None:
+    if await db.get(Category, category_id) is None:
+        raise HTTPException(status_code=404, detail="Категория не найдена")
+    if await db.get(Brand, brand_id) is None:
+        raise HTTPException(status_code=404, detail="Бренд не найден")
+
+
+async def update_named_item_order(
+    db: AsyncSession,
+    model: type[Category] | type[Brand],
+    item_ids: list[int],
+    label: str,
+) -> list[int]:
+    items = list((await db.scalars(select(model))).all())
+    items_by_id = {item.id: item for item in items}
+    if len(items) != len(item_ids) or set(items_by_id) != set(item_ids):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Нужно указать все существующие записи: {label}",
+        )
+
+    for position, item_id in enumerate(item_ids):
+        items_by_id[item_id].position = position
+    await db.commit()
+    return item_ids
+
+
+@router.get(
+    "/categories",
+    response_model=list[CategoryResponse],
+    tags=["Каталог: категории"],
+    summary="Получить категории",
+    description="Возвращает все категории в сохранённом порядке.",
+)
+async def list_categories(db: AsyncSession = Depends(get_db)) -> list[Category]:
+    return list(
+        (
+            await db.scalars(select(Category).order_by(Category.position, Category.id))
+        ).all()
+    )
+
+
+@router.put(
+    "/categories/order",
+    response_model=list[int],
+    tags=["Каталог: категории"],
+    summary="Изменить порядок категорий",
+)
+async def update_category_order(
+    payload: CatalogOrderUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> list[int]:
+    return await update_named_item_order(db, Category, payload.item_ids, "категории")
+
+
+@router.post(
+    "/categories",
+    response_model=CategoryResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Каталог: категории"],
+    summary="Создать категорию",
+    description="Создаёт категорию и автоматически формирует уникальный slug.",
+    responses={409: {"description": "Категория с таким названием уже существует"}},
+)
+async def create_category(
+    payload: CategoryCreate,
+    db: AsyncSession = Depends(get_db),
+) -> Category:
+    name = payload.name.strip()
+    await ensure_name_available(db, Category, name)
+    slug = await generate_unique_slug(db, Category, name)
+    max_position = await db.scalar(select(func.max(Category.position)))
+    category = Category(
+        name=name,
+        slug=slug,
+        position=(max_position if max_position is not None else -1) + 1,
+    )
+    db.add(category)
+    await db.commit()
+    await db.refresh(category)
+    return category
+
+
+@router.put(
+    "/categories/{category_id}",
+    response_model=CategoryResponse,
+    tags=["Каталог: категории"],
+    summary="Изменить категорию",
+    description="Обновляет название категории и пересчитывает её slug.",
+    responses={
+        404: {"description": "Категория не найдена"},
+        409: {"description": "Категория с таким названием уже существует"},
+    },
+)
+async def update_category(
+    category_id: Annotated[int, PathParameter(description="ID категории.")],
+    payload: CategoryCreate,
+    db: AsyncSession = Depends(get_db),
+) -> Category:
+    category = await db.get(Category, category_id)
+    if category is None:
+        raise HTTPException(status_code=404, detail="Категория не найдена")
+    name = payload.name.strip()
+    await ensure_name_available(db, Category, name, category_id)
+    slug = await generate_unique_slug(db, Category, name, category_id)
+    category.name = name
+    category.slug = slug
+    await db.commit()
+    await db.refresh(category)
+    return category
+
+
+@router.delete(
+    "/categories/{category_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Каталог: категории"],
+    summary="Удалить категорию",
+    description="Удаляет категорию без товаров; при удалении также удаляется её изображение.",
+    responses={
+        404: {"description": "Категория не найдена"},
+        409: {"description": "Нельзя удалить категорию, пока в ней есть товары"},
+    },
+)
+async def delete_category(
+    category_id: Annotated[int, PathParameter(description="ID категории.")],
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    category = await db.get(Category, category_id)
+    if category is None:
+        raise HTTPException(status_code=404, detail="Категория не найдена")
+    if await db.scalar(select(Product.id).where(Product.category_id == category_id)):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Сначала переназначьте товары этой категории",
+        )
+    await db.delete(category)
+    await db.commit()
+    if category.image_path:
+        (settings.UPLOAD_DIR / Path(category.image_path).name).unlink(missing_ok=True)
+
+
+@router.post(
+    "/categories/{category_id}/image",
+    response_model=CategoryResponse,
+    tags=["Каталог: категории"],
+    summary="Загрузить изображение категории",
+    description="Принимает JPEG, PNG или WebP размером не более 5 МБ.",
+    responses={
+        404: {"description": "Категория не найдена"},
+        413: {"description": "Файл больше 5 МБ"},
+        415: {"description": "Неподдерживаемый тип файла"},
+    },
+)
+async def upload_category_image(
+    category_id: Annotated[int, PathParameter(description="ID категории.")],
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+) -> Category:
+    category = await db.get(Category, category_id)
+    if category is None:
+        raise HTTPException(status_code=404, detail="Категория не найдена")
+
+    destination = await save_image(file)
+    previous_path = category.image_path
+    category.image_path = f"/uploads/{destination.name}"
+    try:
+        await db.commit()
+        await db.refresh(category)
+    except SQLAlchemyError:
+        await db.rollback()
+        destination.unlink(missing_ok=True)
+        raise
+
+    if previous_path:
+        (settings.UPLOAD_DIR / Path(previous_path).name).unlink(missing_ok=True)
+    return category
+
+
+@router.delete(
+    "/categories/{category_id}/image",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Каталог: категории"],
+    summary="Удалить изображение категории",
+    description="Удаляет изображение категории и очищает ссылку на него.",
+    responses={
+        404: {"description": "Категория или её изображение не найдены"},
+    },
+)
+async def delete_category_image(
+    category_id: Annotated[int, PathParameter(description="ID категории.")],
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    category = await db.get(Category, category_id)
+    if category is None:
+        raise HTTPException(status_code=404, detail="Категория не найдена")
+    if category.image_path is None:
+        raise HTTPException(status_code=404, detail="У категории нет изображения")
+
+    image_path = category.image_path
+    category.image_path = None
+    await db.commit()
+    (settings.UPLOAD_DIR / Path(image_path).name).unlink(missing_ok=True)
+
+
+@router.get(
+    "/brands",
+    response_model=list[BrandResponse],
+    tags=["Каталог: бренды"],
+    summary="Получить бренды",
+    description="Возвращает все бренды в сохранённом порядке.",
+)
+async def list_brands(db: AsyncSession = Depends(get_db)) -> list[Brand]:
+    return list(
+        (await db.scalars(select(Brand).order_by(Brand.position, Brand.id))).all()
+    )
+
+
+@router.put(
+    "/brands/order",
+    response_model=list[int],
+    tags=["Каталог: бренды"],
+    summary="Изменить порядок брендов",
+)
+async def update_brand_order(
+    payload: CatalogOrderUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> list[int]:
+    return await update_named_item_order(db, Brand, payload.item_ids, "бренды")
+
+
+@router.post(
+    "/brands",
+    response_model=BrandResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Каталог: бренды"],
+    summary="Создать бренд",
+    description="Создаёт бренд и автоматически формирует уникальный slug.",
+    responses={409: {"description": "Бренд с таким названием уже существует"}},
+)
+async def create_brand(
+    payload: BrandCreate,
+    db: AsyncSession = Depends(get_db),
+) -> Brand:
+    name = payload.name.strip()
+    await ensure_name_available(db, Brand, name)
+    slug = await generate_unique_slug(db, Brand, name)
+    max_position = await db.scalar(select(func.max(Brand.position)))
+    brand = Brand(
+        name=name,
+        slug=slug,
+        position=(max_position if max_position is not None else -1) + 1,
+    )
+    db.add(brand)
+    await db.commit()
+    await db.refresh(brand)
+    return brand
+
+
+@router.put(
+    "/brands/{brand_id}",
+    response_model=BrandResponse,
+    tags=["Каталог: бренды"],
+    summary="Изменить бренд",
+    description="Обновляет название бренда и пересчитывает его slug.",
+    responses={
+        404: {"description": "Бренд не найден"},
+        409: {"description": "Бренд с таким названием уже существует"},
+    },
+)
+async def update_brand(
+    brand_id: Annotated[int, PathParameter(description="ID бренда.")],
+    payload: BrandCreate,
+    db: AsyncSession = Depends(get_db),
+) -> Brand:
+    brand = await db.get(Brand, brand_id)
+    if brand is None:
+        raise HTTPException(status_code=404, detail="Бренд не найден")
+    name = payload.name.strip()
+    await ensure_name_available(db, Brand, name, brand_id)
+    slug = await generate_unique_slug(db, Brand, name, brand_id)
+    brand.name = name
+    brand.slug = slug
+    await db.commit()
+    await db.refresh(brand)
+    return brand
+
+
+@router.delete(
+    "/brands/{brand_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Каталог: бренды"],
+    summary="Удалить бренд",
+    description="Удаляет бренд, если он не используется товарами.",
+    responses={
+        404: {"description": "Бренд не найден"},
+        409: {"description": "Нельзя удалить бренд, пока он используется товарами"},
+    },
+)
+async def delete_brand(
+    brand_id: Annotated[int, PathParameter(description="ID бренда.")],
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    brand = await db.get(Brand, brand_id)
+    if brand is None:
+        raise HTTPException(status_code=404, detail="Бренд не найден")
+    if await db.scalar(select(Product.id).where(Product.brand_id == brand_id)):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Сначала переназначьте товары этого бренда",
+        )
+    image_path = brand.image_path
+    await db.delete(brand)
+    await db.commit()
+    if image_path:
+        (settings.UPLOAD_DIR / Path(image_path).name).unlink(missing_ok=True)
+
+
+@router.post(
+    "/brands/{brand_id}/image",
+    response_model=BrandResponse,
+    tags=["Каталог: бренды"],
+    summary="Загрузить изображение бренда",
+    description="Принимает JPEG, PNG или WebP размером не более 5 МБ.",
+    responses={
+        404: {"description": "Бренд не найден"},
+        413: {"description": "Файл больше 5 МБ"},
+        415: {"description": "Неподдерживаемый тип файла"},
+    },
+)
+async def upload_brand_image(
+    brand_id: Annotated[int, PathParameter(description="ID бренда.")],
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+) -> Brand:
+    brand = await db.get(Brand, brand_id)
+    if brand is None:
+        raise HTTPException(status_code=404, detail="Бренд не найден")
+
+    destination = await save_image(file)
+    previous_path = brand.image_path
+    brand.image_path = f"/uploads/{destination.name}"
+    try:
+        await db.commit()
+        await db.refresh(brand)
+    except SQLAlchemyError:
+        await db.rollback()
+        destination.unlink(missing_ok=True)
+        raise
+
+    if previous_path:
+        (settings.UPLOAD_DIR / Path(previous_path).name).unlink(missing_ok=True)
+    return brand
+
+
+@router.delete(
+    "/brands/{brand_id}/image",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Каталог: бренды"],
+    summary="Удалить изображение бренда",
+    description="Удаляет изображение бренда и очищает ссылку на него.",
+    responses={
+        404: {"description": "Бренд или его изображение не найдены"},
+    },
+)
+async def delete_brand_image(
+    brand_id: Annotated[int, PathParameter(description="ID бренда.")],
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    brand = await db.get(Brand, brand_id)
+    if brand is None:
+        raise HTTPException(status_code=404, detail="Бренд не найден")
+    if brand.image_path is None:
+        raise HTTPException(status_code=404, detail="У бренда нет изображения")
+
+    image_path = brand.image_path
+    brand.image_path = None
+    await db.commit()
+    (settings.UPLOAD_DIR / Path(image_path).name).unlink(missing_ok=True)
+
+
+@router.get(
+    "/products",
+    response_model=list[ProductResponse],
+    tags=["Каталог: товары"],
+    summary="Получить товары",
+    description="Возвращает все товары с категориями, брендами и изображениями.",
+)
+async def list_products(db: AsyncSession = Depends(get_db)) -> list[Product]:
+    result = await db.scalars(
+        select(Product)
+        .options(
+            selectinload(Product.category),
+            selectinload(Product.brand),
+            selectinload(Product.images),
+        )
+        .order_by(Product.id.desc())
+    )
+    return list(result.all())
+
+
+@router.get(
+    "/popular-products",
+    response_model=list[int],
+    tags=["Каталог: популярные товары"],
+    summary="Получить список популярных товаров",
+    description="Возвращает ID товаров в порядке их показа на главной странице.",
+)
+async def list_popular_product_ids(
+    db: AsyncSession = Depends(get_db),
+) -> list[int]:
+    result = await db.scalars(
+        select(Product.id)
+        .where(Product.popular_position.is_not(None))
+        .order_by(Product.popular_position)
+    )
+    return list(result.all())
+
+
+@router.put(
+    "/popular-products",
+    response_model=list[int],
+    tags=["Каталог: популярные товары"],
+    summary="Обновить список популярных товаров",
+    description="Заменяет список популярных товаров; допускается не более восьми ID.",
+    responses={
+        404: {"description": "Один или несколько товаров не найдены"},
+        422: {"description": "Некорректный список товаров"},
+    },
+)
+async def update_popular_products(
+    payload: PopularProductsUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> list[int]:
+    if len(payload.product_ids) > MAX_POPULAR_PRODUCTS:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Можно выбрать не более {MAX_POPULAR_PRODUCTS} товаров",
+        )
+
+    if payload.product_ids:
+        existing_ids = set(
+            (
+                await db.scalars(
+                    select(Product.id).where(Product.id.in_(payload.product_ids))
+                )
+            ).all()
+        )
+        if existing_ids != set(payload.product_ids):
+            raise HTTPException(status_code=404, detail="Товар не найден")
+
+    await db.execute(update(Product).values(popular_position=None))
+    for position, product_id in enumerate(payload.product_ids, start=1):
+        await db.execute(
+            update(Product)
+            .where(Product.id == product_id)
+            .values(popular_position=position)
+        )
+    await db.commit()
+    return payload.product_ids
+
+
+@router.post(
+    "/products",
+    response_model=ProductResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Каталог: товары"],
+    summary="Создать товар",
+    description="Создаёт товар и формирует уникальный slug по названию.",
+    responses={404: {"description": "Указанная категория или бренд не найдены"}},
+)
+async def create_product(
+    payload: ProductCreate,
+    db: AsyncSession = Depends(get_db),
+) -> Product:
+    await ensure_product_relations(db, payload.category_id, payload.brand_id)
+    slug = await generate_unique_slug(db, Product, payload.name)
+    product = Product(**payload.model_dump(), slug=slug)
+    db.add(product)
+    await db.commit()
+    return await get_product(db, product.id)
+
+
+@router.put(
+    "/products/{product_id}",
+    response_model=ProductResponse,
+    tags=["Каталог: товары"],
+    summary="Изменить товар",
+    description="Частично обновляет товар. Переданные обязательные поля не могут быть пустыми.",
+    responses={
+        404: {"description": "Товар, категория или бренд не найдены"},
+        422: {"description": "Некорректные данные товара"},
+    },
+)
+async def update_product(
+    product_id: Annotated[int, PathParameter(description="ID товара.")],
+    payload: ProductUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> Product:
+    product = await get_product(db, product_id)
+    updates = payload.model_dump(exclude_unset=True)
+    if any(
+        updates.get(field) is None
+        for field in ("name", "price", "category_id", "brand_id")
+        if field in updates
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail="Обязательные поля товара не могут быть пустыми",
+        )
+    if "name" in updates:
+        updates["slug"] = await generate_unique_slug(
+            db, Product, updates["name"], product_id
+        )
+    if "category_id" in updates or "brand_id" in updates:
+        await ensure_product_relations(
+            db,
+            updates.get("category_id", product.category_id),
+            updates.get("brand_id", product.brand_id),
+        )
+    for field, value in updates.items():
+        setattr(product, field, value)
+    await db.commit()
+    return await get_product(db, product_id)
+
+
+@router.delete(
+    "/products/{product_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Каталог: товары"],
+    summary="Удалить товар",
+    description="Удаляет товар и связанные с ним изображения.",
+    responses={404: {"description": "Товар не найден"}},
+)
+async def delete_product(
+    product_id: Annotated[int, PathParameter(description="ID товара.")],
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    product = await get_product(db, product_id)
+    image_paths = [image.path for image in product.images]
+    await db.delete(product)
+    await db.commit()
+    for image_path in image_paths:
+        (settings.UPLOAD_DIR / Path(image_path).name).unlink(missing_ok=True)
+
+
+@router.post(
+    "/products/{product_id}/images",
+    response_model=ProductResponse,
+    tags=["Каталог: товары"],
+    summary="Загрузить изображения товара",
+    description=(
+        "Загружает от 1 до 10 изображений JPEG, PNG или WebP; "
+        "размер каждого файла не должен превышать 5 МБ."
+    ),
+    responses={
+        400: {"description": "Некорректное количество файлов"},
+        404: {"description": "Товар не найден"},
+        413: {"description": "Один из файлов больше 5 МБ"},
+        415: {"description": "Неподдерживаемый тип файла"},
+    },
+)
+async def upload_product_images(
+    product_id: Annotated[int, PathParameter(description="ID товара.")],
+    files: list[UploadFile] = File(...),
+    db: AsyncSession = Depends(get_db),
+) -> Product:
+    product = await get_product(db, product_id)
+    if not files or len(files) > MAX_IMAGES_PER_UPLOAD:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Можно загрузить от 1 до {MAX_IMAGES_PER_UPLOAD} изображений",
+        )
+
+    saved_files: list[Path] = []
+    try:
+        settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        for file in files:
+            destination = await save_image(file)
+            saved_files.append(destination)
+            db.add(
+                ProductImage(
+                    product_id=product_id,
+                    path=f"/uploads/{destination.name}",
+                )
+            )
+
+        await db.commit()
+    except (HTTPException, OSError, SQLAlchemyError):
+        await db.rollback()
+        for path in saved_files:
+            path.unlink(missing_ok=True)
+        raise
+
+    return await get_product(db, product_id)
+
+
+@router.delete(
+    "/products/{product_id}/images/{image_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Каталог: товары"],
+    summary="Удалить изображение товара",
+    description="Удаляет изображение, принадлежащее указанному товару.",
+    responses={404: {"description": "Товар или изображение не найдены"}},
+)
+async def delete_product_image(
+    product_id: Annotated[int, PathParameter(description="ID товара.")],
+    image_id: Annotated[int, PathParameter(description="ID изображения.")],
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    image = await db.get(ProductImage, image_id)
+    if image is None or image.product_id != product_id:
+        raise HTTPException(status_code=404, detail="Изображение не найдено")
+    await db.delete(image)
+    await db.commit()
+    (settings.UPLOAD_DIR / Path(image.path).name).unlink(missing_ok=True)

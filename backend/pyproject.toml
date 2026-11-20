@@ -12,15 +12,18 @@ dependencies = [
     "aiosqlite>=0.22.1",
     "alembic>=1.20.1",
     "asyncpg>=0.32.0",
+    "cryptography>=50.0.2",
     "fastapi>=0.162.0",
     "pydantic>=2.14.2",
     "pydantic-settings>=2.16.2",
+    "python-multipart>=0.0.20",
     "sqlalchemy[asyncio]>=2.1.6",
     "uvicorn>=0.54.0",
 ]
 
 [project.scripts]
-backend = "src:main"
+backend = "src.main:main"
+seed = "src.seed:main"
 
 [build-system]
 requires = ["uv_build>=0.12.13,<0.13.0"]
