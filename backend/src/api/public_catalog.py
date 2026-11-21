@@ -49,6 +49,27 @@ async def list_public_popular_products(
 
 
 @router.get(
+    "/products",
+    response_model=list[ProductResponse],
+    summary="Получить все товары",
+    description="Возвращает все товары для поиска по каталогу.",
+)
+async def list_public_products(
+    db: AsyncSession = Depends(get_db),
+) -> list[Product]:
+    result = await db.scalars(
+        select(Product)
+        .options(
+            selectinload(Product.category),
+            selectinload(Product.brand),
+            selectinload(Product.images),
+        )
+        .order_by(Product.name, Product.id)
+    )
+    return list(result.all())
+
+
+@router.get(
     "/categories/{category_id}/brands",
     response_model=list[BrandResponse],
     summary="Получить бренды категории",
