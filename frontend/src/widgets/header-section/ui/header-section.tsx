@@ -184,7 +184,7 @@ export default function HeaderSection({
       </header>
 
       <div
-        className={`fixed inset-0 z-[60] flex items-start overflow-hidden bg-black/50 p-4 pt-16 backdrop-blur-md transition-opacity duration-300 sm:pt-20 ${
+        className={`fixed inset-0 z-[60] flex items-center justify-center overflow-hidden bg-black/50 p-4 backdrop-blur-md transition-opacity duration-300 ${
           searchOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
@@ -241,7 +241,7 @@ export default function HeaderSection({
             )}
           </div>
 
-          <div className="mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+          <div className="mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 [scrollbar-gutter:stable]">
             {!normalizedQuery ? null : searchResults.length > 0 ? (
               <ul className="grid gap-2">
                 {searchResults.map((product) => (
