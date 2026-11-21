@@ -24,6 +24,7 @@ export default function HeaderSection({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [scrollProgress, setScrollProgress] = useState(0);
   const userInitial = userName?.trim().charAt(0).toLocaleUpperCase("ru-RU");
   const normalizedQuery = searchQuery.trim().toLocaleLowerCase("ru-RU");
   const searchResults =
@@ -78,8 +79,34 @@ export default function HeaderSection({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [searchOpen]);
 
+  useEffect(() => {
+    const updateScrollProgress = () => {
+      const scrollableHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const progress =
+        scrollableHeight > 0
+          ? Math.min(100, (window.scrollY / scrollableHeight) * 100)
+          : 0;
+      setScrollProgress(progress);
+    };
+
+    updateScrollProgress();
+    window.addEventListener("scroll", updateScrollProgress, { passive: true });
+    window.addEventListener("resize", updateScrollProgress);
+
+    return () => {
+      window.removeEventListener("scroll", updateScrollProgress);
+      window.removeEventListener("resize", updateScrollProgress);
+    };
+  }, []);
+
   return (
     <>
+      <div
+        className="pointer-events-none fixed left-0 top-0 z-[100] h-1 bg-linear-to-r from-brand-violet via-brand-blue to-brand-pink transition-[width] duration-100"
+        style={{ width: `${scrollProgress}%` }}
+        aria-hidden="true"
+      />
       <div className="hidden lg:flex justify-between items-center p-2 text-white/80">
         <a
           href={contactsConfig.mapUrl}
@@ -241,7 +268,7 @@ export default function HeaderSection({
             )}
           </div>
 
-          <div className="mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 [scrollbar-gutter:stable]">
+          <div className="search-results-scroll mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
             {!normalizedQuery ? null : searchResults.length > 0 ? (
               <ul className="grid gap-2">
                 {searchResults.map((product) => (
